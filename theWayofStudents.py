@@ -1,3 +1,10 @@
+#things to do:
+#actually have uses for all of the items that you find
+#movement is pretty much good at this point. write in the storyline and stuff
+#sort out warnings + rest
+#finish up the thingy thing for the knowledge + revelations
+
+#defines variables + globalizes some of them if they need to be referenced multiple times
 global inventory
 global location
 global warning_lvl
@@ -13,8 +20,8 @@ location = 0
 inventory = []
 
 #defines acceptable responses to prevent other responses
-acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure"]
-acc_no = ["no", "nah", "nay", "n", "fight me bitch"]
+acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup"]
+acc_no = ["no", "nah", "nay", "n", "fight me bitch", "nope"]
 acc_look = ["look", "look around", "have a gander", "see", "try to look"]
 acc_doors = ["go through doors", "doors", "door", "look at doors", "through doors", "open doors", "open", "open door", "go through door"]
 acc_rest = ["rest", "relax"]
@@ -31,12 +38,12 @@ for a in acc_res:
 class Room(object):
     """Room object defines a room"""
 
-    def __init__(self, style, number, description, door1, door2, door3, item1, item2, item3):
+    def __init__(self, name, number, description, door1, door2, door3, item1, item2, item3):
         """defines what the rooms are like
-        style is the type of room and description. number is a number that indicates the location of the room.
+        name is the basic description of the room. number is a number that indicates the location of the room.
         there can be up to three doors and up to three items in a room."""
 
-        self.style = style
+        self.name = name
         self.number = number
         self.description = description
         self.door1 = door1
@@ -58,30 +65,31 @@ class Room(object):
                 n += 1
                 print(f"{n}. {x}")
             else:
-                print("Which one would you like to go through?")
+                print("\nWhich one would you like to go through?")
         print("Please type the number of the door you would like to go through.")
         while lol == False:
             subpeep = input("::: ")
             if subpeep not in acc_int:
-                warning_lvl += 1
-                subpeep = input("I'm sorry, that is an unacceptable value. \n::: ")
+                warning()
+                subpeep = input("\nThat is an unacceptable value. Please try again. \n::: ")
             else:
                 peep = int(subpeep)
                 if peep <= n:
                     lol = True
                 else:
-                    peep = input("I'm sorry, that is an unacceptable value. \n::: ")
-                    warning_lvl += 1
+                    peep = input("\nThat is an unacceptable value. Please try again. \n::: ")
+                    warning()
 
     def items_list(self):
         global knowledge_lvl
+        global inventory
         items = [self.item1, self.item2, self.item3]
         clean_items = []
         n = 0
         for item in items:
             if type(item) == str:
                 clean_items.append(item)
-        if clean_items[0] in inventory:
+        if self.item1 in inventory:
             print("\nYou have already taken all available items in the room. A small, facetious voice in your brain tells you 'Good job!'")
         else:
             knowledge_lvl += 1
@@ -96,7 +104,7 @@ class Room(object):
             for item in clean_items:
                 print("     ", item)
                 inventory.append(item)
-            print("\nYou add these items into a bag you are holding. For sure, you know that the items cannot fit, yet they do.")
+            print("\nYou add these items into a bag you are holding. You know that the items cannot fit for sure, yet they do.")
         eep = input("""\nWould you like to see your inventory? \n::: """).lower()
         if eep in acc_yes:
             print("\nThese are the items you currently have in your inventory.")
@@ -105,31 +113,45 @@ class Room(object):
                 print(f"{n}. {item}")
         elif eep in acc_no:
             print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
+        else:
+            warning()
         print("\nWhat would you like to do?")
         clean_items = []
         action()
 
-    def inventory():
-        n = 0
-        print("\nThese are the items you currently have in your inventory.")
-        for item in inventory:
-                n += 1
-                print(f"{n}. {item}")
+    def entered(self):
+        global location
+        location = int(self.number)
+        print(f"\nYou have entered the {self.name}")
+        action()
+
+
+def inventoryf():
+    global inventory
+    n = 0
+    print("\nThese are the items you currently have in your inventory.")
+    for item in inventory:
+        n += 1
+        print(f"{n}. {item}")
+    action()
+
 
 def action():
     global look_count
+    global knowledge_lvl
     lol = False
     while lol == False:
         lol = True
         hehe = input("""::: """).lower()
         if look_count == 0:
-        #THIS DOESN'T WORK PLS FIX
             if hehe not in acc_look:
                 print("""\nI am sorry, that is unacceptable. Please try again.""")
                 lol = False
             else:
+                knowledge_lvl += 1
                 look()
         else:
+            knowledge_lvl += 1
             if hehe in acc_look:
                 look()
             elif hehe in acc_doors:
@@ -137,8 +159,9 @@ def action():
             elif hehe in acc_rest:
                 rest()
             elif hehe in acc_inv:
-                inventory()
+                inventoryf()
             else:
+                knowledge_lvl -= 1
                 print("""\nI am sorry, that is unacceptable. Please try again.""")
                 lol = False
 
@@ -174,7 +197,23 @@ def look():
         print(hall_3.description)
         hall_3.items_list()
 
-#def warning():
+def revelation():
+    global knowledge_lvl
+    if knowledge_lvl == 10:
+        print("""Hello? You do realize that there's actually a person talking to you here, right? \nDon't try and talk to me though -- we'll both die if you end up doing that. \nTrust me, I was once like you. I wish I could tell you it gets better, but it doesn't really.""")
+        knowledge_lvl += 2
+    else:
+        return None
+
+def warning():
+    global warning_lvl
+    global knowledge_lvl
+    warning_lvl += 1
+    if warning_lvl == 1:
+        print("""It is absolutely ridiculous that you can manage to do such a thing as mess up a number. Quite frankly, I am ashamed. \nI tried rebelling like that before too, you know. Didn't really work out well for me or anyone else involved. \nDare to do that again, and trust me, there will be many consequences.""")
+        knowledge_lvl += 1
+    elif warning_lvl == 2:
+        print("""Let's not try to push it anymore, yeah? Trust me, it's takng all of my strength not to do so. \nYou do realize that you won't just get yourself in trouble, you'll get me in trouble too, right? \nIt's like hell in here, and you're seriously only making things worse for my life. I can't stand it.""")
 
 #def rest():
 
@@ -182,115 +221,69 @@ def startgame():
     print("""You are currently in the entrance of what appears to be an old castle. \nUnfortunately, you do not appear to remember anything of your past. \nSomething very cold and wet drips upon your head, and you feel a headache incoming. \nWhat would you like to do? \n \n(TIP: try to make your commands as short as possible. \nFor example, instead of typing 'open door', simply type 'door'.)""")
     action()
 
-def entrance():
-    global location
-    location = 0
-    print("""You have returned to the entrance. The walls are still not very pretty.""")
-    action()
-
-def hall1():
-    global location
-    location = 1
-    action()
-
-def hall2():
-    global location
-    location = 2
-    action()
-
-def room1():
-    global location
-    location = 3
-    action()
-
-def room2():
-    global location
-    location = 4
-    action()
-
-def room3():
-    global location
-    location = 5
-    action()
-
-def room4():
-    global location
-    location = 6
-    action()
-
-def room5():
-    global location
-    location = 7
-    action()
-
-def hall3():
-    global location
-    location = 8
-    action()
-
 def doors():
     if location == 0:
         entrance.doors_list()
         if peep == 1:
-            hall2()
+            hall_2.entered()
         elif peep == 2:
-            room1()
+            room_1.entered()
         elif peep == 3:
-            hall1()
+            hall_1.entered()
     elif location == 1:
         hall_1.doors_list()
         if peep == 1:
-            entrance()
+            entrance.entered()
         elif peep == 2:
-            room3()
+            room_3.entered()
     elif location == 2:
         hall_2.doors_list()
         if peep == 1:
-            entrance()
+            entrance.entered()
         elif peep == 2:
-            room2()
+            room_2.entered()
     elif location == 3:
         room_1.doors_list()
         if peep == 1:
-            entrance()
+            entrance.entered()
         elif peep == 2:
-            room4()
+            room_4.entered()
         elif peep == 3:
-            room5()
+            room_5.entered()
     elif location == 4:
         room_2.doors_list()
         if peep == 1:
-            hall2()
+            hall_2.entered()
         elif peep == 2:
-            room5()
+            room_5.entered()
     elif location == 5:
         room_3.doors_list()
         if peep == 1:
-            hall1()
+            hall_1.entered()
         elif peep == 2:
-            room4()
+            room_4.entered()
     elif location == 6:
         room_4.doors_list()
         if peep == 1:
-            room1()
+            room_1.entered()
         elif peep == 2:
-            room2()
+            room_2.entered()
         elif peep == 3:
-            hall3()
+            hall_3.entered()
     elif location == 7:
         room_5.doors_list()
         if peep == 1:
-            room1()
+            room_1.entered()
         elif peep == 2:
-            room2()
+            room_2.entered()
         elif peep == 3:
-            hall3()
+            hall_3.entered()
     elif location == 8:
         hall_3.doors_list()
         if peep == 1:
-            room3()
+            room_3.entered()
         elif peep == 2:
-            room5()
+            room_5.entered()
         elif peep == 3:
             endgame()
 
@@ -299,12 +292,12 @@ def doors():
 
 X = 1
 #defining rooms
-entrance = Room("room", "0", "There are three doors: one to your left, one to the front, and one to your right. A torch dimly lights the entrance. \nFrom somewhere above, you think that you hear a scream.", "Left Door", "Center Door", "Right Door", "torch", "silver key", X)
-hall_1 = Room("hallway", "1", X, "Door to the Entrance", "Door Marked 3", X, X, X, X)
-hall_2 = Room("hallway", "2", X, "Door to the Entrance", "Door Marked 2", X, X, X, X)
-room_1 = Room("room", "3", X, "Door to the Entrance", "Door Marked 4", "Door Marked 5", X, X, X)
-room_2 = Room("room", "4", X, "Door Marked Hall-2", "Door Marked 5", X, X, X, X)
-room_3 = Room("room", "5", X, "Door Marked Hall-1", "Door Marked 4", "Door Marked Hall-3", X, X, X)
-room_4 = Room("room", "6", X, "Door Marked 1", "Door Marked 3", X, X, X, X)
-room_5 = Room("room", "7", X, "Door Marked 1", "Door Marked 2", "Door Marked Hall-3", X, X, X)
-hall_3 = Room("hallway", "8", X, "Door Marked 3", "Door Marked 5", "Stairwell", X, X, X)
+entrance = Room("Entrance", "0", "There are three doors: one to your left, one to the front, and one to your right. A torch dimly lights the entrance. \nFrom somewhere above, you think that you hear a scream.", "Left Door", "Center Door", "Right Door", "torch", "silver key", X)
+hall_1 = Room("First Hall", "1", "You see one door down the rest of the hallway. There is also a door back to where you had just come from. \nThere is a chest on the floor, which upon first glance, is locked. Thanks to the torch, you have a general idea of the room.", "Door to the Entrance", "Door Marked 3", X, "spinach", "diamond key", X)
+hall_2 = Room("Second Hall", "2", X, "Door to the Entrance", "Door Marked 2", X, "egg", "silver orb", X)
+room_1 = Room("First Room", "3", X, "Door to the Entrance", "Door Marked 4", "Door Marked 5", "chicken", "pepper", X)
+room_2 = Room("Second Room", "4", X, "Door Marked Hall-2", "Door Marked 5", X, "golden key", X, X)
+room_3 = Room("Third Room", "5", X, "Door Marked Hall-1", "Door Marked 4", "Door Marked Hall-3", "spider", X, X)
+room_4 = Room("Fourth Room", "6", X, "Door Marked 1", "Door Marked 3", X, X, X, X)
+room_5 = Room("Fifth Room", "7", X, "Door Marked 1", "Door Marked 2", "Door Marked Hall-3", X, X, X)
+hall_3 = Room("Third Hall", "8", X, "Door Marked 3", "Door Marked 5", "Stairwell", X, X, X)
