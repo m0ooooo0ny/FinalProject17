@@ -3,15 +3,18 @@
 #movement is pretty much good at this point. write in the storyline and stuff
 #sort out warnings + rest
 #finish up the thingy thing for the knowledge + revelations
+#fix hehe/basicactions bug
 
 #defines variables + globalizes some of them if they need to be referenced multiple times
 global inventory
 global location
 global warning_lvl
 global rest_lvl
+global rest_decrease
 global look_count
 global knowledge_lvl
 rest_lvl = 16
+rest_decrease = 1
 warning_lvl = 0
 knowledge_lvl = 0
 look_count = 0
@@ -138,7 +141,6 @@ class Room(object):
         print(f"\nYou have entered the {self.name}")
         action()
 
-
 def inventoryf():
     global inventory
     n = 0
@@ -155,8 +157,8 @@ def action():
     lol = False
     while lol == False:
         lol = True
-        hehe = input("""::: """).lower()
         if look_count == 0:
+            hehe = input("""::: """).lower()
             if hehe not in acc_look:
                 print("""\nYou cannot see anything in the room, so you cannot do anything.""")
                 lol = False
@@ -210,7 +212,9 @@ def action():
 def basicactions():
     global hehe
     global knowledge_lvl
+    lol = False
     while lol == False:
+        hehe = input("""::: """).lower()
         lol = True
         knowledge_lvl += 1
         if hehe in acc_look:
@@ -373,20 +377,66 @@ def encounter():
         if "golden key" in inventory:
             inventory.remove("golden key")
             noninventory.append("golden key")
-            print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use.")
+            print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
         else:
             print("\nYou cannot open the padlock.")
         if "golden key" in noninventory:
-            #START HERE
+            ingredients = []
+            if "spinach" in inventory:
+                ingredients.append("spinach")
+                noninventory.append("spinach")
+                inventory.remove("spinach")
+            if "eggs" in inventory:
+                ingredients.append("eggs")
+                noninventory.append("eggs")
+                inventory.remove("eggs")
+            if "pepper" in inventory:
+                ingredients.append("pepper")
+                noninventory.append("pepper")
+                inventory.remove("pepper")
+            print("\nYou place:")
+            for item in ingredients:
+                print("     ", item)
+            print("in the pan.")
+            if len(ingredients) < 3:
+                print("\nYou still need", str(3-len(ingredients)), "ingredients")
+            else:
+                print("\nYou have created the superior dish, commonly eaten by a legend that went by the name of Cat or something. \nA dish of eggs, peppers (the spicy kind), and spinach. \nThe good egg dish is added to your inventory.")
+                inventory.append("good egg dish")
     elif location == 4:
-
-    elif location == 5:
+        x = True
+        throwaway = input("You go over to the trash can and inspect it. It seems that you can throw things away. Would you like to throw something away?\n::: ")
+        if throwaway in acc_yes:
+            while x == True:
+                x = False
+                items = input("What item would you like to throw away? (type 10 if you would not like to throw an item away) \n::: ")
+                if items == "10":
+                    print("Very well. You are no longer at the trashcan. What would you like to do?")
+                elif items not in inventory:
+                    print("I am sorry, but you do not possess that item, or you spelled it incorrectly. Please try again. \n::: ")
+                    x = True
+                else:
+                    inventory.remove(items)
+                    noninventory.append(items)
+                    print(f"\nYou take the {items} out and throw it into the trash can.")
+                    cont = input("Would you like to remove any more items?")
+                    if cont in acc_yes:
+                        x = True
+                    elif cont in acc_no:
+                        print("\nVery well.")
+                    else:
+                        warning()
+        if throwaway in acc_no:
+            print("\nVery well.")
+        else:
+            warning()
+    """elif location == 5:
 
     elif location == 6:
 
     elif location == 7:
 
-    elif location == 8:
+    elif location == 8:"""
 
 #def endgame():
 
