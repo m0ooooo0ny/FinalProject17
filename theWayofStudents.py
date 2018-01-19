@@ -26,7 +26,7 @@ noninventory = []
 acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup"]
 acc_no = ["no", "nah", "nay", "n", "fight me bitch", "nope"]
 acc_look = ["look", "look around", "have a gander", "see", "try to look"]
-acc_doors = ["go through doors", "doors", "door", "look at doors", "through doors", "open doors", "open", "open door", "go through door"]
+acc_doors = ["go through doors", "doors", "door", "look at doors", "through doors", "open doors", "open", "open door", "go through door", "go to doors"]
 acc_chest = ["look at chest", "open chest", "see chest", "inspect chest", "chest"]
 acc_loom = ["look at loom", "see loom", "use loom", "loom", "inspect loom"]
 acc_boiler = ["look at boiler", "see boiler", "use boiler", "feed boiler", "boiler"]
@@ -108,7 +108,7 @@ class Room(object):
             knowledge_lvl += 1
             if len(inventory) <= 4:
                 print(f"\nNow that you have taken a good look around, you catch sight of many items around you. \nAlmost as though they were conveniently placed for you to find (isn't that bizarre?), you see a:")
-            elif len(inventory) > 6 and len(inventory) <= 8:
+            elif len(inventory) > 4 and len(inventory) <= 8:
                 print(f"\nNow that you have taken a good look around, you catch si -- weird. \nIt's almost as though you've just thought that before, and multiple times at that. \nNevermind. Regardless, you see a:")
             elif len(inventory) > 8 and len(inventory) <= 12:
                 print(f"\nNow that you have -- this is really strange. I know that I'm narrating to you, but this is really strange. \nYou seem awfully regimented. Anyway, just take these items, yeah?")
@@ -118,19 +118,19 @@ class Room(object):
                 print("     ", item)
                 inventory.append(item)
             print("\nYou add these items into a bag you are holding. You know that the items cannot fit for sure, yet they do.")
-        while lol == True:
-            eep = input("""\nWould you like to see your inventory? \n::: """).lower()
-            if eep in acc_yes:
-                lol = False
-                print("\nThese are the items you currently have in your inventory.")
-                for item in inventory:
-                    n += 1
-                    print(f"{n}. {item}")
-            elif eep in acc_no:
-                lol = False
-                print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
-            else:
-                warning()
+            while lol == True:
+                eep = input("""\nWould you like to see your inventory? \n::: """).lower()
+                if eep in acc_yes:
+                    lol = False
+                    print("\nThese are the items you currently have in your inventory.")
+                    for item in inventory:
+                        n += 1
+                        print(f"{n}. {item}")
+                elif eep in acc_no:
+                    lol = False
+                    print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
+                else:
+                    warning()
         print("\nWhat would you like to do?")
         clean_items = []
         action()
@@ -138,7 +138,7 @@ class Room(object):
     def entered(self):
         global location
         location = int(self.number)
-        print(f"\nYou have entered the {self.name}")
+        print(f"\nYou have entered the {self.name}.")
         action()
 
 def inventoryf():
@@ -157,8 +157,9 @@ def action():
     lol = False
     while lol == False:
         lol = True
+        hehe = input("""::: """).lower()
+        revelation()
         if look_count == 0:
-            hehe = input("""::: """).lower()
             if hehe not in acc_look:
                 print("""\nYou cannot see anything in the room, so you cannot do anything.""")
                 lol = False
@@ -166,69 +167,37 @@ def action():
                 knowledge_lvl += 1
                 look()
         else:
-            if location == 0:
-                basicactions()
-            elif location == 1:
-                if hehe in acc_chest:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 2:
-                if hehe in acc_chest:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 3:
-                if hehe in acc_stove:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 4:
-                if hehe in acc_trash:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 5:
-                if hehe in acc_boiler:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 6:
-                if hehe in acc_loom:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 7:
-                if hehe in acc_platter:
-                    encounter()
-                else:
-                    basicactions()
-            elif location == 8:
-                if hehe in acc_bookmaker or hehe in acc_stairwell:
-                    encounter()
-                else:
-                    basicactions()
-
-def basicactions():
-    global hehe
-    global knowledge_lvl
-    lol = False
-    while lol == False:
-        hehe = input("""::: """).lower()
-        lol = True
-        knowledge_lvl += 1
-        if hehe in acc_look:
-            look()
-        elif hehe in acc_doors:
-            doors()
-        elif hehe in acc_rest:
-            rest()
-        elif hehe in acc_inv:
-            inventoryf()
-        else:
-            knowledge_lvl -= 1
-            print("""\nI am sorry, that is unacceptable. Please try again.""")
-            lol = False
+            knowledge_lvl += 1
+            if hehe in acc_chest and location == 1:
+                encounter()
+            elif hehe in acc_chest and location == 2:
+                encounter()
+            elif hehe in acc_stove and location == 3:
+                encounter()
+            elif hehe in acc_trash and location == 4:
+                encounter()
+            elif hehe in acc_boiler and location == 5:
+                encounter()
+            elif hehe in acc_loom and location == 6:
+                encounter()
+            elif hehe in acc_platter and location == 7:
+                encounter()
+            elif hehe in acc_bookmaker and location == 8:
+                encounter()
+            elif hehe in acc_stairwell and location == 8:
+                encounter()
+            elif hehe in acc_look:
+                look()
+            elif hehe in acc_doors:
+                doors()
+            elif hehe in acc_rest:
+                rest()
+            elif hehe in acc_inv:
+                inventoryf()
+            else:
+                knowledge_lvl -= 1
+                print("""\nI am sorry, that is unacceptable. Please try again.""")
+                lol = False
 
 def look():
     global look_count
@@ -362,16 +331,22 @@ def encounter():
             inventory.remove("silver key")
             noninventory.append("silver key")
             print("\nWith the silver key, you open up the chest. \nInside the chest lies a golden egg. \nYou pick it up and add it to the bag.")
+            inventory.append("golden egg")
+            action()
         else:
             print("\nYou cannot open the chest.")
+            action()
     elif location == 2:
         print("Upon inspection, you can see that the lock is made of diamond.")
         if "diamond key" in inventory:
             inventory.remove("diamond key")
             noninventory.append("diamond key")
             print("\nWith the diamond key, you open up the chest. \nInside the chest lies a pepper. \nYou pick it up and add it to the bag.")
+            inventory.append("pepper")
+            action()
         else:
             print("\nYou cannot open the chest.")
+            action()
     elif location == 3:
         print("The first thing that you notice is that the stove is locked with a heavy gold padlock.")
         if "golden key" in inventory:
@@ -380,6 +355,7 @@ def encounter():
             print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
         else:
             print("\nYou cannot open the padlock.")
+            action()
         if "golden key" in noninventory:
             ingredients = []
             if "spinach" in inventory:
@@ -403,6 +379,7 @@ def encounter():
             else:
                 print("\nYou have created the superior dish, commonly eaten by a legend that went by the name of Cat or something. \nA dish of eggs, peppers (the spicy kind), and spinach. \nThe good egg dish is added to your inventory.")
                 inventory.append("good egg dish")
+            action()
     elif location == 4:
         x = True
         throwaway = input("You go over to the trash can and inspect it. It seems that you can throw things away. Would you like to throw something away?\n::: ")
