@@ -1,11 +1,9 @@
 #things to do:
-#actually have uses for all of the items that you find
-#movement is pretty much good at this point. write in the storyline and stuff
 #sort out warnings + rest
 #finish up the thingy thing for the knowledge + revelations
-#fix hehe/basicactions bug
 
 #defines variables + globalizes some of them if they need to be referenced multiple times
+import random
 global inventory
 global location
 global warning_lvl
@@ -13,7 +11,7 @@ global rest_lvl
 global rest_decrease
 global look_count
 global knowledge_lvl
-rest_lvl = 16
+rest_lvl = 30
 rest_decrease = 1
 warning_lvl = 0
 knowledge_lvl = 0
@@ -26,7 +24,7 @@ noninventory = []
 acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup"]
 acc_no = ["no", "nah", "nay", "n", "fight me bitch", "nope"]
 acc_look = ["look", "look around", "have a gander", "see", "try to look"]
-acc_doors = ["go through doors", "doors", "door", "look at doors", "through doors", "open doors", "open", "open door", "go through door", "go to doors"]
+acc_doors = ["go through doors", "doors", "door", "look at doors", "through doors", "open doors", "open", "open door", "go through door", "go to doors", "leave"]
 acc_chest = ["look at chest", "open chest", "see chest", "inspect chest", "chest"]
 acc_loom = ["look at loom", "see loom", "use loom", "loom", "inspect loom"]
 acc_boiler = ["look at boiler", "see boiler", "use boiler", "feed boiler", "boiler"]
@@ -34,7 +32,7 @@ acc_stove = ["look at stove", "use stove", "see stove", "inspect stove", "stove"
 acc_bookmaker = ["look at bookmaker", "use bookmaker", "see bookmaker", "inspect bookmaker", "bookmaker", "look at book-maker", "use book-maker", "see book-maker", "inspect book-maker", "book-maker"]
 acc_platter = ["look at platter", "inspect platter", "use platter", "platter"]
 acc_stairwell = ["take stairwell", "stairwell", "inspect stairwell", "use stairwell", "look at stairwell"]
-acc_trash = ["use trash can", "use trash", "trash can", "trash", "inspect trash can"]
+acc_trash = ["use trash can", "use trash", "trash can", "trash", "inspect trash can", "look at trash can", "look at trash"]
 acc_rest = ["rest", "relax"]
 acc_inv = ["inventory"]
 acc_int = ["1", "2", "3", "4", "5"]
@@ -130,6 +128,8 @@ class Room(object):
                     lol = False
                     print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
                 else:
+                    if warning_lvl == 4:
+                        lol = False
                     warning()
         print("\nWhat would you like to do?")
         clean_items = []
@@ -138,17 +138,58 @@ class Room(object):
     def entered(self):
         global location
         location = int(self.number)
-        print(f"\nYou have entered the {self.name}.")
+        norest()
+        print(f"You have entered the {self.name}.")
         action()
 
-def inventoryf():
-    global inventory
-    n = 0
-    print("\nThese are the items you currently have in your inventory.")
-    for item in inventory:
-        n += 1
-        print(f"{n}. {item}")
-    action()
+def revelation():
+    global knowledge_lvl
+    if knowledge_lvl == 10:
+        print("""Hello? You do realize that there's actually a person talking to you here, right? \nDon't try and talk to me though -- we'll both die if you end up doing that. \nTrust me, I was once like you. I wish I could tell you it gets better, but it doesn't really. \nAnyway --""")
+        knowledge_lvl += 1
+    elif knowledge_lvl == 20:
+        print("""Look, I'm a little lonely here so I'm just going to talk to you, if that's alright with you. \nI was once like you: stressed out of my mind and trying to find any way to escape. \nAnd you are correct, this is your best method of trying to escape. \nIf you can make it to the end, that is. \nAnyway --""")
+        knowledge_lvl += 2
+    elif knowledge_lvl == 30:
+        print("""Do you want to know who I am? I am a prisoner, a result of Magnet. \nI am meant to take students here on a chase and lure them into a sense of escape before snatching it away from them. \nAs you can see, I'm not necessarily the best at it. \nI like giving changes. Anyway --""")
+        knowledge_lvl += 3
+    elif knowledge_lvl == 40:
+        print("""Why am I a prisoner? I am a prisoner because I failed this task. I failed this task spectacularly. \nDon't worry too much about me, this isn't my day job or anything. \nJust -- try not to fail, yeah? So let's get our heads back into the game --""")
+    else:
+        return None
+
+def warning():
+    global warning_lvl
+    global knowledge_lvl
+    warning_lvl += 1
+    if warning_lvl == 1:
+        print("""It is absolutely ridiculous that you can manage to do such a thing as mess up something that easy. Quite frankly, I am ashamed. \nI tried rebelling like that before too, you know. Didn't really work out well for me or anyone else involved. \nDare to do that again, and trust me, there will be many consequences.""")
+        knowledge_lvl += 1
+    elif warning_lvl == 2:
+        print("""Let's not try to push it anymore, yeah? Trust me, it's takng all of my strength not to do so. \nYou do realize that you won't just get yourself in trouble, you'll get me in trouble too, right? \nIt's like hell in here, and you're seriously only making things worse for my life. I can't stand it.""")
+        knowledge_lvl +=1
+    elif warning_lvl == 3:
+        print("""Are you really trying to take advantage of my generosity like that? Seriously? \nNext time, for sure, I will not be so kind. Anything more than 3 strikes is too much.""")
+        knowledge_lvl += 1
+    elif warning_lvl == 4:
+        print("That is it, I can't take this anymore. It's over for you.\n")
+        endgame()
+
+def norest():
+    global rest_decrease
+    global rest_lvl
+    rest_lvl -= rest_decrease
+    print(" ")
+    if rest_lvl <= 5:
+        print("You are barely able to push on and keep moving. I'm telling you that I'm worried. \nI would highly recommend resting, yeah?\n")
+    elif rest_lvl <= 10:
+        print("Something in your back stings a lot, and it is almost as though the world around you is going to dissolve. \nPerhaps this is a product of standing around too much and not resting, or maybe it's just your imagination.\n")
+    elif rest_lvl <= 15:
+        print("You actually collapse onto the ground for a few seconds before you are able to stand up again. \nYou wonder if you should stop and rest a little bit before continuing on.\n")
+    elif rest_lvl <= 20:
+        print("The headache that you had been feeling before is coming back even stronger. \nFor a second, your knees buckle and you worry that you won't be strong enough to carry on.\n")
+    else:
+        return None
 
 def action():
     global hehe
@@ -185,7 +226,7 @@ def action():
             elif hehe in acc_bookmaker and location == 8:
                 encounter()
             elif hehe in acc_stairwell and location == 8:
-                encounter()
+                stairwell()
             elif hehe in acc_look:
                 look()
             elif hehe in acc_doors:
@@ -199,9 +240,28 @@ def action():
                 print("""\nI am sorry, that is unacceptable. Please try again.""")
                 lol = False
 
+def rest():
+    global rest_lvl
+    global rest_decrease
+    rest_lvl += random.randint(1,5)
+    print("\nYou feel better rested than before and find it easier to continue.")
+    if "chicken" in inventory or "mist" in inventory:
+        print("\nYou wonder if some of the exhaustion that you felt was due to an item that you are currently carrying. \nIt would certainly explain why you started tiring far more easily.")
+    action()
+
+def inventoryf():
+    global inventory
+    n = 0
+    print("\nThese are the items you currently have in your inventory.")
+    for item in inventory:
+        n += 1
+        print(f"{n}. {item}")
+    action()
+
 def look():
     global look_count
     global location
+    global rest_decrease
     look_count += 1
     if location == 0:
         print(entrance.description)
@@ -213,6 +273,7 @@ def look():
         print(hall_2.description)
         hall_2.items_list()
     elif location == 3:
+        rest_decrease += 2
         print(room_1.description)
         room_1.items_list()
     elif location == 4:
@@ -230,31 +291,6 @@ def look():
     elif location == 8:
         print(hall_3.description)
         action()
-
-def revelation():
-    global knowledge_lvl
-    if knowledge_lvl == 10:
-        print("""Hello? You do realize that there's actually a person talking to you here, right? \nDon't try and talk to me though -- we'll both die if you end up doing that. \nTrust me, I was once like you. I wish I could tell you it gets better, but it doesn't really.""")
-        knowledge_lvl += 2
-    else:
-        return None
-
-def warning():
-    global warning_lvl
-    global knowledge_lvl
-    warning_lvl += 1
-    if warning_lvl == 1:
-        print("""It is absolutely ridiculous that you can manage to do such a thing as mess up something that easy. Quite frankly, I am ashamed. \nI tried rebelling like that before too, you know. Didn't really work out well for me or anyone else involved. \nDare to do that again, and trust me, there will be many consequences.""")
-        knowledge_lvl += 1
-    elif warning_lvl == 2:
-        print("""Let's not try to push it anymore, yeah? Trust me, it's takng all of my strength not to do so. \nYou do realize that you won't just get yourself in trouble, you'll get me in trouble too, right? \nIt's like hell in here, and you're seriously only making things worse for my life. I can't stand it.""")
-        knowledge_lvl +=1
-
-#def rest():
-
-def startgame():
-    print("""You are currently in the entrance of what appears to be an old castle. \nUnfortunately, you do not appear to remember anything of your past. \nSomething very cold and wet drips upon your head, and you feel a headache incoming. \nWhat would you like to do? \n \n(TIP: try to make your commands as short as possible. \nFor example, instead of typing 'open door', simply type 'door'.)""")
-    action()
 
 def doors():
     if location == 0:
@@ -297,14 +333,14 @@ def doors():
             hall_1.entered()
         elif peep == 2:
             room_4.entered()
+        elif peep == 3:
+            hall_3.entered()
     elif location == 6:
         room_4.doors_list()
         if peep == 1:
             room_1.entered()
         elif peep == 2:
-            room_2.entered()
-        elif peep == 3:
-            hall_3.entered()
+            room_3.entered()
     elif location == 7:
         room_5.doors_list()
         if peep == 1:
@@ -322,6 +358,8 @@ def doors():
         elif peep == 3:
             endgame()
 
+#upon further thought, I may have split up encounter into separate functions because I use way too many loops
+#and those loops need a different variable name every single time, so that's food for thought
 def encounter():
     global inventory
     print(" ")
@@ -332,6 +370,9 @@ def encounter():
             noninventory.append("silver key")
             print("\nWith the silver key, you open up the chest. \nInside the chest lies a golden egg. \nYou pick it up and add it to the bag.")
             inventory.append("golden egg")
+            action()
+        elif "silver key" in noninventory:
+            print("\nYou have already opened the chest.")
             action()
         else:
             print("\nYou cannot open the chest.")
@@ -344,78 +385,271 @@ def encounter():
             print("\nWith the diamond key, you open up the chest. \nInside the chest lies a pepper. \nYou pick it up and add it to the bag.")
             inventory.append("pepper")
             action()
+        elif "silver key" in noninventory:
+            print("\nYou have already opened the chest.")
+            action()
         else:
             print("\nYou cannot open the chest.")
             action()
     elif location == 3:
         print("The first thing that you notice is that the stove is locked with a heavy gold padlock.")
-        if "golden key" in inventory:
-            inventory.remove("golden key")
-            noninventory.append("golden key")
-            print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
+        if "good egg dish" in inventory or "good egg dish" in noninventory:
+            print("\nYou have already used the stove to the full extent necessary.")
+            action()
         else:
-            print("\nYou cannot open the padlock.")
-            action()
-        if "golden key" in noninventory:
-            ingredients = []
-            if "spinach" in inventory:
-                ingredients.append("spinach")
-                noninventory.append("spinach")
-                inventory.remove("spinach")
-            if "eggs" in inventory:
-                ingredients.append("eggs")
-                noninventory.append("eggs")
-                inventory.remove("eggs")
-            if "pepper" in inventory:
-                ingredients.append("pepper")
-                noninventory.append("pepper")
-                inventory.remove("pepper")
-            print("\nYou place:")
-            for item in ingredients:
-                print("     ", item)
-            print("in the pan.")
-            if len(ingredients) < 3:
-                print("\nYou still need", str(3-len(ingredients)), "ingredients")
+            if "golden key" in inventory:
+                inventory.remove("golden key")
+                noninventory.append("golden key")
+                print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
+            if "golden key" in noninventory:
+                ingredients = []
+                if "spinach" in inventory:
+                    ingredients.append("spinach")
+                    noninventory.append("spinach")
+                    inventory.remove("spinach")
+                if "egg" in inventory:
+                    ingredients.append("egg")
+                    noninventory.append("egg")
+                    inventory.remove("egg")
+                if "pepper" in inventory:
+                    ingredients.append("pepper")
+                    noninventory.append("pepper")
+                    inventory.remove("pepper")
+                if len(ingredients) != 0:
+                    print("\nYou place:")
+                    for item in ingredients:
+                        print("     ", item)
+                    print("in the pan.")
+                    if len(ingredients) < 3:
+                        print("\nYou still need", str(3-len(ingredients)), "ingredients")
+                    else:
+                        print("\nYou have created the superior dish, commonly eaten by a legend that went by the name of Cat or something. \nA dish of eggs, peppers (the spicy kind), and spinach. \nThe good egg dish is added to your inventory.")
+                        inventory.append("good egg dish")
+                elif len(ingredients) == 0:
+                    print("\nYou are lacking all of the ingredients necessary to cook a dish.\nYou still need 3 ingredients.")
+                    action()
             else:
-                print("\nYou have created the superior dish, commonly eaten by a legend that went by the name of Cat or something. \nA dish of eggs, peppers (the spicy kind), and spinach. \nThe good egg dish is added to your inventory.")
-                inventory.append("good egg dish")
-            action()
+                print("\nYou cannot open the padlock.")
+                action()
     elif location == 4:
+        global rest_decrease
         x = True
         throwaway = input("You go over to the trash can and inspect it. It seems that you can throw things away. Would you like to throw something away?\n::: ")
-        if throwaway in acc_yes:
-            while x == True:
-                x = False
-                items = input("What item would you like to throw away? (type 10 if you would not like to throw an item away) \n::: ")
-                if items == "10":
-                    print("Very well. You are no longer at the trashcan. What would you like to do?")
-                elif items not in inventory:
-                    print("I am sorry, but you do not possess that item, or you spelled it incorrectly. Please try again. \n::: ")
-                    x = True
-                else:
-                    inventory.remove(items)
-                    noninventory.append(items)
-                    print(f"\nYou take the {items} out and throw it into the trash can.")
-                    cont = input("Would you like to remove any more items?")
-                    if cont in acc_yes:
+        loop = True
+        while loop == True:
+            loop = False
+            if throwaway in acc_yes:
+                while x == True:
+                    x = False
+                    n = 0
+                    print("\nThese are the items you currently have in your inventory.")
+                    for item in inventory:
+                        n += 1
+                        print(f"{n}. {item}")
+                    items = input("\nWhat item would you like to throw away? \n(Please type in the item, not the number the item is associated with. \ntype 10 if you would not like to throw an item away) \n::: ")
+                    if items == "10":
+                        print("\nVery well. You are no longer at the trashcan. What would you like to do?")
+                        action()
+                    elif items not in inventory:
+                        print("I am sorry, but you do not possess that item, or you spelled it incorrectly. Please try again. \n::: ")
                         x = True
-                    elif cont in acc_no:
-                        print("\nVery well.")
                     else:
-                        warning()
-        if throwaway in acc_no:
-            print("\nVery well.")
+                        if items == "mist" or items == "chicken":
+                            rest_decrease -= 1
+                        elif items == "torch":
+                            print("\nYou are pretty sure that you don't need the torch at this point, and you throw it away. \nHowever, immediately after you throw it away, everywhere around you is plunged into complete darkness. \nWhen you try to run to a door to find a light switch, you slip. \nYour head hits the gilded trash can and you promptly die.")
+                            endgame()
+                        elif items != "mist" and items != "chicken":
+                            print("\nYou fool! You need to hold onto that, or else you'll never get out of here!")
+                            endgame()
+                        inventory.remove(items)
+                        noninventory.append(items)
+                        print(f"\nYou take the {items} out and throw it into the trash can.")
+                        subx = True
+                        while subx == True:
+                            subx = False
+                            cont = input("Would you like to remove any more items?\n::: ")
+                            if cont in acc_yes:
+                                x = True
+                            elif cont in acc_no:
+                                print("\nVery well.")
+                                action()
+                            else:
+                                subx = True
+                                if warning_lvl == 4:
+                                    subx = False
+                                warning()
+            if throwaway in acc_no:
+                print("\nVery well.")
+                action()
+            else:
+                loop = True
+                warning()
+    elif location == 5:
+        if "good egg dish" in noninventory:
+            print("You have already dealt with the boiler, which is sitting there happily.")
+            action()
         else:
-            warning()
-    """elif location == 5:
-
+            print("When you come closer to the boiler, you notice that the boiler is indeed hungry. \nIn fact, you're rather worried that the boiler would go and try to kill you if you crawl too close. \nWould you like to go closer?")
+            ahh = False
+            while ahh == False:
+                ahh = True
+                boop = input("::: ")
+                if boop in acc_yes:
+                    if "good egg dish" in inventory:
+                        inventory.remove("good egg dish")
+                        noninventory.append("good egg dish")
+                        print("\nYou throw the good egg dish from your inventory into the boiler's open grid and wait anxiously. \nAfter a few tense seconds, the boiler closes and bounces up and down a few times. \nThen, the boiler quietens, burping out a pigeon feather. \nYou successfully calmed the boiler without dying.")
+                        inventory.append("feather of a pigeon")
+                        action()
+                    elif "good egg dish" not in inventory:
+                        print("\nAs you are not possessing an offering the boiler desires, it launches at you. \nYou are eaten by the boiler.")
+                        endgame()
+                elif boop in acc_no:
+                    print("\nYou make a well-timed and expeditious retreat away from the boiler.")
+                    action()
+                else:
+                    ahh = False
+                    if warning_lvl == 4:
+                        ahh = True
+                    warning()
     elif location == 6:
-
+        print("The loom reaches the ceiling, and you cannot insert the fabric without help.")
+        if "binding" in inventory or "binding" in noninventory:
+            print("\nYou have already used the loom to the full extent necessary.")
+            action()
+        else:
+            if "spider" in inventory:
+                inventory.remove("spider")
+                noninventory.append("spider")
+                print("\nThe spider deftly crawls up and down the loom, moving exactly where you want it. \nIt eagerly awaits instruction.")
+            if "spider" in noninventory:
+                fabrics = []
+                if "spider thread" in inventory:
+                    fabrics.append("spider thread")
+                    noninventory.append("spider thread")
+                    inventory.remove("spider thread")
+                if "golden fabric" in inventory:
+                    fabrics.append("golden fabric")
+                    noninventory.append("golden fabric")
+                    inventory.remove("golden fabric")
+                if "blue fabric" in inventory:
+                    fabrics.append("blue fabric")
+                    noninventory.append("blue fabric")
+                    inventory.remove("blue fabric")
+                if "purple fabric" in inventory:
+                    fabrics.append("purple fabric")
+                    noninventory.append("purple fabric")
+                    inventory.remove("purple fabric")
+                if len(fabrics) != 0:
+                    print("\nThe spider takes from you:")
+                    for item in fabrics:
+                        print("     ", item)
+                    print("and immediately jumps on the loom in order to start weaving.")
+                    if len(fabrics) < 3:
+                        print("\nYou still need", str(4-len(fabrics)), "different materials in order to fully make something.")
+                    else:
+                        print("\The spider finishes its work atop the loom and drops into your hands an amount of binding. \nThe binding is that typically used on books.")
+                        inventory.append("binding")
+                elif len(fabrics) == 0:
+                    print("\nYou are lacking all of the necessary materials to fully make what you are supposed to.\nYou still need 4 different materials.")
+                    action()
+            else:
+                print("\nYou cannot reach the room in order to do any work. \nPerhaps if you had something that could crawl up there to help...")
+                action()
     elif location == 7:
+        print("The platter is very decorative and has three round spaces where you think objects are supposed to go.")
+        platter = []
+        if "silver orb" in inventory:
+            inventory.remove("silver orb")
+            noninventory.append("silver orb")
+            platter.append("silver orb")
+        if "golden orb" in inventory:
+            inventory.remove("golden orb")
+            noninventory.append("golden orb")
+            platter.append("golden orb")
+        if "bronze orb" in inventory:
+            inventory.remove("bronze orb")
+            noninventory.append("bronze orb")
+            platter.append("bronze orb")
+        if len(platter) != 0:
+            print("\nYou place:")
+            for item in platter:
+                print("     ", item)
+            print("inside the indentation within the platter. It fits perfectly")
+            if len(platter) < 3:
+                print("\nYou still need", str(3-len(platter)), "different round objects in order to fill up the platter.")
+            else:
+                print("\All of your shiny, shiny orbs that you probably could have sold for a million dollars slide into the platter. \nThere is a spinning sound, and the platter spins around. \nFrom the resulting crevice in the wall, you see something shining. \nFor a second, you think that it's a diamond that you can sell and make tons of money off of. \nInstead, you see a ton of paper. \nDisappointment fills you, but you take the sheafs of paper regardless.")
+                inventory.append("paper")
+        elif len(ingredients) == 0:
+            print("\nYou are lacking all of the necessary orbs to fill the platter.\nYou still need 3 different orbs.")
+            action()
+    elif location == 8:
+        print("The bookmaker seems to be built for just the purpose that it looks to be for.")
+        bookmaker = []
+        if "binding" in inventory:
+            bookmaker.append("binding")
+            inventory.remove("binding")
+            noninventory.append("binding")
+        if "paper" in inventory:
+            bookmaker.append("paper")
+            inventory.remove("paper")
+            noninventory.append("paper")
+        if len(bookmaker) != 0:
+            print("\nYou place:")
+            for item in bookmaker:
+                print("     ", item)
+            print("inside the bookmaker.")
+            if len(bookmaker) == 2:
+                print("\nYou wait excitedly as the bookmaker accepts the binding and paper you put inside it. \nThe bookmaker chugs away for a surprisingly short amount of time before spewing out a book. \nWhen you pick up the book, you feel complete and utter knowledge flow through you. \n/This is the Tome of Secrets/ something whispers at you.")
+                inventory.append("Tome of Secrets")
+                action()
+            elif len(bookmaker) == 1:
+                print("\nAlthough you place one necessary material into the bookmaker, it still requires another one as well.")
+                action()
+        if len(bookmaker) == 0:
+            print("\nUnfortunately, you don't seem to have anything that you can put inside the bookmaker.")
+            action()
 
-    elif location == 8:"""
+def stairwell():
+    print("\nA bright pink post-it note is stuck on the wall, contrasting the more medieval settings surrounding you. \nOn it reads: \n'BRING ME THREE OBJECTS: A GOLDEN EGG, THE TOME OF SECRETS, AND THE FEATHER OF A PIGEON. \nTHEN YOU MAY LEAVE THIS PLACE.'")
+    stairwell = []
+    if "golden egg" in inventory:
+        inventory.remove("golden egg")
+        noninventory.append("golden egg")
+        stairwell.append("golden egg")
+    if "feather of a pigeon" in inventory:
+        inventory.remove("feather of a pigeon")
+        noninventory.append("feather of a pigeon")
+        stairwell.append("feather of a pigeon")
+    if "Tome of Secrets" in inventory:
+        inventory.remove("Tome of Secrets")
+        stairwell.append("Tome of Secrets")
+    if len(stairwell) != 0:
+        print("\nYou place:")
+        for item in stairwell:
+            print("     ", item)
+        print("before the stairwell as an offering.")
+        if len(stairwell) <= 3:
+            print("\nYou still need more offerings in order to leave this place.")
+            action()
+        elif len(stairwell) == 3:
+            ending()
+    elif len(stairwell) == 0:
+        print("\nYou possess no offerings to give the stairwell.")
+        action()
 
-#def endgame():
+def startgame():
+    print("""You are currently in the entrance of what appears to be an old castle. \nUnfortunately, you do not appear to remember anything of your past. \nSomething very cold and wet drips upon your head, and you feel a headache incoming. \nWhat would you like to do? \n \n(TIP: try to make your commands as short as possible. \nFor example, instead of typing 'open door', simply type 'door'.)""")
+    action()
+
+def endgame():
+    print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class.\nGAME OVER")
+
+def ending():
+    print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
+    print("GAME COMPLETE")
 
 X = 1
 #defining rooms
