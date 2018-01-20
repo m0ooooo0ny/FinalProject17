@@ -563,7 +563,7 @@ def encounter():
                     for item in fabrics:
                         print("     ", item)
                     print("and immediately jumps on the loom in order to start weaving.")
-                    if len(fabrics) < 3:
+                    if len(fabrics) < 4:
                         print("\nYou still need", str(4-len(fabrics)), "different materials in order to fully make something.")
                     else:
                         print("\The spider finishes its work atop the loom and drops into your hands an amount of binding. \nThe binding is that typically used on books.")
@@ -649,16 +649,18 @@ def stairwell():
         stairwell.append("feather of a pigeon")
     if "Tome of Secrets" in inventory:
         inventory.remove("Tome of Secrets")
+        noninventory.append("Tome of Secrets")
         stairwell.append("Tome of Secrets")
     if len(stairwell) != 0:
         print("\nYou place:")
         for item in stairwell:
             print("     ", item)
         print("before the stairwell as an offering.")
-        if len(stairwell) <= 3:
+        if len(stairwell) < 3:
             print("\nYou still need more offerings in order to leave this place.")
             action()
         elif len(stairwell) == 3:
+            print("\nThe stairwell accepts your offerings.")
             ending()
     elif len(stairwell) == 0:
         print("\nYou possess no offerings to give the stairwell.")
