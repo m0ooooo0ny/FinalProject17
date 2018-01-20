@@ -1,7 +1,3 @@
-#things to do:
-#sort out warnings + rest
-#finish up the thingy thing for the knowledge + revelations
-
 #defines variables + globalizes some of them if they need to be referenced multiple times
 import random
 global inventory
@@ -11,39 +7,53 @@ global rest_lvl
 global rest_decrease
 global look_count
 global knowledge_lvl
-rest_lvl = 30
-rest_decrease = 1
-warning_lvl = 0
-knowledge_lvl = 0
+global norestcount
+rest_lvl = 30                                   #if this level reaches zero, the player dies
+rest_decrease = 1                               #defines how quickly rest_lvl changes
+warning_lvl = 0                                 #if this level reaches above three, the player dies
+knowledge_lvl = 0                               #depending on how high the value is, the player gains more and more info
 look_count = 0
 location = 0
+norestcount = 0
 inventory = []
 noninventory = []
 
-#defines acceptable responses to prevent other responses
-acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup"]
-acc_no = ["no", "nah", "nay", "n", "fight me bitch", "nope"]
+#smaller lists for encounter functions; initially part of the function but reset each time, so here we are
+global ingredients
+global fabrics
+global platter
+global bookmaker
+global stairwell
+ingredients = []
+fabrics = []
+platter = []
+bookmaker = []
+stairwell = []
+
+#defines acceptable responses to filter responses but also accept various other acceptable ones
+acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup", "yep", "ye", "yee"]
+acc_no = ["no", "nah", "nay", "n", "fight me b----", "nope", "nah fam"]
 acc_look = ["look", "look around", "have a gander", "see", "try to look"]
 acc_doors = ["go through doors", "doors", "door", "look at doors", "through doors", "open doors", "open", "open door", "go through door", "go to doors", "leave"]
 acc_chest = ["look at chest", "open chest", "see chest", "inspect chest", "chest"]
 acc_loom = ["look at loom", "see loom", "use loom", "loom", "inspect loom"]
 acc_boiler = ["look at boiler", "see boiler", "use boiler", "feed boiler", "boiler"]
 acc_stove = ["look at stove", "use stove", "see stove", "inspect stove", "stove"]
-acc_bookmaker = ["look at bookmaker", "use bookmaker", "see bookmaker", "inspect bookmaker", "bookmaker", "look at book-maker", "use book-maker", "see book-maker", "inspect book-maker", "book-maker"]
+acc_bookmaker = ["look at bookmaker", "use bookmaker", "see bookmaker", "inspect bookmaker", "bookmaker", "look at book-maker", "use book-maker", "see book-maker", "inspect book-maker", "book-maker", "make book"]
 acc_platter = ["look at platter", "inspect platter", "use platter", "platter"]
 acc_stairwell = ["take stairwell", "stairwell", "inspect stairwell", "use stairwell", "look at stairwell"]
 acc_trash = ["use trash can", "use trash", "trash can", "trash", "inspect trash can", "look at trash can", "look at trash"]
 acc_rest = ["rest", "relax"]
 acc_inv = ["inventory"]
 acc_int = ["1", "2", "3", "4", "5"]
-
+#makes a total list of acceptable responses
 acc_res = [acc_yes, acc_no, acc_look, acc_doors, acc_rest, acc_inv, acc_int, acc_chest, acc_loom, acc_boiler, acc_stove, acc_platter, acc_stairwell, acc_trash]
 acc_responses = []
 for a in acc_res:
     for b in a:
         acc_responses.append(b)
 
-#defining the room
+#defining the rooms
 class Room(object):
     """Room object defines a room"""
 
@@ -62,7 +72,7 @@ class Room(object):
         self.item2 = item2
         self.item3 = item3
 
-    def doors_list(self):
+    def doors_list(self):                       #provides a list of doors based on the class definition
         global peep
         global warning_lvl
         lol = False
@@ -76,20 +86,20 @@ class Room(object):
             else:
                 print("\nWhich one would you like to go through?")
         print("Please type the number of the door you would like to go through.")
-        while lol == False:
+        while lol == False:                     #keeps cycling through until an acceptable answer is given; credit to Damon for this
             subpeep = input("::: ")
             if subpeep not in acc_int:
                 warning()
-                subpeep = input("\nThat is an unacceptable value. Please try again. \n::: ")
+                print("\nThat is an unacceptable value, please try again.")
             else:
                 peep = int(subpeep)
                 if peep <= n:
                     lol = True
                 else:
-                    peep = input("\nThat is an unacceptable value. Please try again. \n::: ")
+                    print("\nThat is an unacceptable value, please try again.")
                     warning()
 
-    def items_list(self):
+    def items_list(self):                       #provides a list of items based on the class definition
         global knowledge_lvl
         global inventory
         global noninventory
@@ -128,14 +138,14 @@ class Room(object):
                     lol = False
                     print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
                 else:
-                    if warning_lvl == 4:
+                    if warning_lvl == 3:
                         lol = False
                     warning()
         print("\nWhat would you like to do?")
         clean_items = []
         action()
 
-    def entered(self):
+    def entered(self):                          #provides what room is entered
         global location
         location = int(self.number)
         norest()
@@ -178,16 +188,24 @@ def warning():
 def norest():
     global rest_decrease
     global rest_lvl
+    global norestcount
     rest_lvl -= rest_decrease
     print(" ")
-    if rest_lvl <= 5:
+    if rest_lvl <= 0:
+        print("You grow so exhausted that you cannot move anymore. You fall to the ground and die.")
+        endgame()
+    elif rest_lvl <= 5 and norestcount == 3:
         print("You are barely able to push on and keep moving. I'm telling you that I'm worried. \nI would highly recommend resting, yeah?\n")
-    elif rest_lvl <= 10:
+        norestcount += 1
+    elif rest_lvl <= 10 and norestcount == 2:
         print("Something in your back stings a lot, and it is almost as though the world around you is going to dissolve. \nPerhaps this is a product of standing around too much and not resting, or maybe it's just your imagination.\n")
-    elif rest_lvl <= 15:
+        norestcount += 1
+    elif rest_lvl <= 15 and norestcount == 1:
         print("You actually collapse onto the ground for a few seconds before you are able to stand up again. \nYou wonder if you should stop and rest a little bit before continuing on.\n")
-    elif rest_lvl <= 20:
+        norestcount += 1
+    elif rest_lvl <= 20 and norestcount == 0:
         print("The headache that you had been feeling before is coming back even stronger. \nFor a second, your knees buckle and you worry that you won't be strong enough to carry on.\n")
+        norestcount += 1
     else:
         return None
 
@@ -355,8 +373,6 @@ def doors():
             room_3.entered()
         elif peep == 2:
             room_5.entered()
-        elif peep == 3:
-            endgame()
 
 #upon further thought, I may have split up encounter into separate functions because I use way too many loops
 #and those loops need a different variable name every single time, so that's food for thought
@@ -392,6 +408,7 @@ def encounter():
             print("\nYou cannot open the chest.")
             action()
     elif location == 3:
+        global ingredients
         print("The first thing that you notice is that the stove is locked with a heavy gold padlock.")
         if "good egg dish" in inventory or "good egg dish" in noninventory:
             print("\nYou have already used the stove to the full extent necessary.")
@@ -402,7 +419,6 @@ def encounter():
                 noninventory.append("golden key")
                 print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
             if "golden key" in noninventory:
-                ingredients = []
                 if "spinach" in inventory:
                     ingredients.append("spinach")
                     noninventory.append("spinach")
@@ -425,6 +441,7 @@ def encounter():
                     else:
                         print("\nYou have created the superior dish, commonly eaten by a legend that went by the name of Cat or something. \nA dish of eggs, peppers (the spicy kind), and spinach. \nThe good egg dish is added to your inventory.")
                         inventory.append("good egg dish")
+                    action()
                 elif len(ingredients) == 0:
                     print("\nYou are lacking all of the ingredients necessary to cook a dish.\nYou still need 3 ingredients.")
                     action()
@@ -476,7 +493,7 @@ def encounter():
                                 action()
                             else:
                                 subx = True
-                                if warning_lvl == 4:
+                                if warning_lvl == 3:
                                     subx = False
                                 warning()
             if throwaway in acc_no:
@@ -510,10 +527,11 @@ def encounter():
                     action()
                 else:
                     ahh = False
-                    if warning_lvl == 4:
+                    if warning_lvl == 3:
                         ahh = True
                     warning()
     elif location == 6:
+        global fabrics
         print("The loom reaches the ceiling, and you cannot insert the fabric without help.")
         if "binding" in inventory or "binding" in noninventory:
             print("\nYou have already used the loom to the full extent necessary.")
@@ -524,7 +542,6 @@ def encounter():
                 noninventory.append("spider")
                 print("\nThe spider deftly crawls up and down the loom, moving exactly where you want it. \nIt eagerly awaits instruction.")
             if "spider" in noninventory:
-                fabrics = []
                 if "spider thread" in inventory:
                     fabrics.append("spider thread")
                     noninventory.append("spider thread")
@@ -558,63 +575,70 @@ def encounter():
                 print("\nYou cannot reach the room in order to do any work. \nPerhaps if you had something that could crawl up there to help...")
                 action()
     elif location == 7:
+        global platter
         print("The platter is very decorative and has three round spaces where you think objects are supposed to go.")
-        platter = []
-        if "silver orb" in inventory:
-            inventory.remove("silver orb")
-            noninventory.append("silver orb")
-            platter.append("silver orb")
-        if "golden orb" in inventory:
-            inventory.remove("golden orb")
-            noninventory.append("golden orb")
-            platter.append("golden orb")
-        if "bronze orb" in inventory:
-            inventory.remove("bronze orb")
-            noninventory.append("bronze orb")
-            platter.append("bronze orb")
-        if len(platter) != 0:
-            print("\nYou place:")
-            for item in platter:
-                print("     ", item)
-            print("inside the indentation within the platter. It fits perfectly")
-            if len(platter) < 3:
-                print("\nYou still need", str(3-len(platter)), "different round objects in order to fill up the platter.")
-            else:
-                print("\All of your shiny, shiny orbs that you probably could have sold for a million dollars slide into the platter. \nThere is a spinning sound, and the platter spins around. \nFrom the resulting crevice in the wall, you see something shining. \nFor a second, you think that it's a diamond that you can sell and make tons of money off of. \nInstead, you see a ton of paper. \nDisappointment fills you, but you take the sheafs of paper regardless.")
-                inventory.append("paper")
-        elif len(ingredients) == 0:
-            print("\nYou are lacking all of the necessary orbs to fill the platter.\nYou still need 3 different orbs.")
+        if "paper" in inventory or "paper" in noninventory:
+            print("You have already received the paper from the platter.")
             action()
+        else:
+            if "silver orb" in inventory:
+                inventory.remove("silver orb")
+                noninventory.append("silver orb")
+                platter.append("silver orb")
+            if "golden orb" in inventory:
+                inventory.remove("golden orb")
+                noninventory.append("golden orb")
+                platter.append("golden orb")
+            if "bronze orb" in inventory:
+                inventory.remove("bronze orb")
+                noninventory.append("bronze orb")
+                platter.append("bronze orb")
+            if len(platter) != 0:
+                print("\nYou place:")
+                for item in platter:
+                    print("     ", item)
+                print("inside the indentation within the platter. It fits perfectly")
+                if len(platter) < 3:
+                    print("\nYou still need", str(3-len(platter)), "different round objects in order to fill up the platter.")
+                else:
+                    print("\All of your shiny, shiny orbs that you probably could have sold for a million dollars slide into the platter. \nThere is a spinning sound, and the platter spins around. \nFrom the resulting crevice in the wall, you see something shining. \nFor a second, you think that it's a diamond that you can sell and make tons of money off of. \nInstead, you see a ton of paper. \nDisappointment fills you, but you take the sheafs of paper regardless.")
+                    inventory.append("paper")
+            elif len(ingredients) == 0:
+                print("\nYou are lacking all of the necessary orbs to fill the platter.\nYou still need 3 different orbs.")
+                action()
     elif location == 8:
+        global bookmaker
         print("The bookmaker seems to be built for just the purpose that it looks to be for.")
-        bookmaker = []
-        if "binding" in inventory:
-            bookmaker.append("binding")
-            inventory.remove("binding")
-            noninventory.append("binding")
-        if "paper" in inventory:
-            bookmaker.append("paper")
-            inventory.remove("paper")
-            noninventory.append("paper")
-        if len(bookmaker) != 0:
-            print("\nYou place:")
-            for item in bookmaker:
-                print("     ", item)
-            print("inside the bookmaker.")
-            if len(bookmaker) == 2:
-                print("\nYou wait excitedly as the bookmaker accepts the binding and paper you put inside it. \nThe bookmaker chugs away for a surprisingly short amount of time before spewing out a book. \nWhen you pick up the book, you feel complete and utter knowledge flow through you. \n/This is the Tome of Secrets/ something whispers at you.")
-                inventory.append("Tome of Secrets")
-                action()
-            elif len(bookmaker) == 1:
-                print("\nAlthough you place one necessary material into the bookmaker, it still requires another one as well.")
-                action()
-        if len(bookmaker) == 0:
-            print("\nUnfortunately, you don't seem to have anything that you can put inside the bookmaker.")
+        if "Tome of Secrets" in inventory or "Tome of Secrets" in noninventory:
+            print("You have used already used the bookmaker enough.")
             action()
+        else:
+            if "binding" in inventory:
+                bookmaker.append("binding")
+                inventory.remove("binding")
+                noninventory.append("binding")
+            if "paper" in inventory:
+                bookmaker.append("paper")
+                inventory.remove("paper")
+            if len(bookmaker) != 0:
+                print("\nYou place:")
+                for item in bookmaker:
+                    print("     ", item)
+                print("inside the bookmaker.")
+                if len(bookmaker) == 2:
+                    print("\nYou wait excitedly as the bookmaker accepts the binding and paper you put inside it. \nThe bookmaker chugs away for a surprisingly short amount of time before spewing out a book. \nWhen you pick up the book, you feel complete and utter knowledge flow through you. \n/This is the Tome of Secrets/ something whispers at you.")
+                    inventory.append("Tome of Secrets")
+                    action()
+                elif len(bookmaker) == 1:
+                    print("\nAlthough you place one necessary material into the bookmaker, it still requires another one as well.")
+                    action()
+            if len(bookmaker) == 0:
+                print("\nUnfortunately, you don't seem to have anything that you can put inside the bookmaker.")
+                action()
 
 def stairwell():
+    global stairwell
     print("\nA bright pink post-it note is stuck on the wall, contrasting the more medieval settings surrounding you. \nOn it reads: \n'BRING ME THREE OBJECTS: A GOLDEN EGG, THE TOME OF SECRETS, AND THE FEATHER OF A PIGEON. \nTHEN YOU MAY LEAVE THIS PLACE.'")
-    stairwell = []
     if "golden egg" in inventory:
         inventory.remove("golden egg")
         noninventory.append("golden egg")
