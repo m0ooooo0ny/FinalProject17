@@ -20,15 +20,15 @@ noninventory = []
 
 #smaller lists for encounter functions; initially part of the function but reset each time, so here we are
 global ingredients
-global fabrics
+global wools
 global platter
 global bookmaker
-global stairwell
+global offerings
 ingredients = []
-fabrics = []
+wools = []
 platter = []
 bookmaker = []
-stairwell = []
+offerings = []
 
 #defines acceptable responses to filter responses but also accept various other acceptable ones
 acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup", "yep", "ye", "yee"]
@@ -39,7 +39,7 @@ acc_chest = ["look at chest", "open chest", "see chest", "inspect chest", "chest
 acc_loom = ["look at loom", "see loom", "use loom", "loom", "inspect loom"]
 acc_boiler = ["look at boiler", "see boiler", "use boiler", "feed boiler", "boiler"]
 acc_stove = ["look at stove", "use stove", "see stove", "inspect stove", "stove"]
-acc_bookmaker = ["look at bookmaker", "use bookmaker", "see bookmaker", "inspect bookmaker", "bookmaker", "look at book-maker", "use book-maker", "see book-maker", "inspect book-maker", "book-maker", "make book"]
+acc_bookmaker = ["look at bookmaker", "use bookmaker", "see bookmaker", "inspect bookmaker", "bookmaker", "look at book-maker", "use book-maker", "see book-maker", "inspect book-maker", "book-maker", "make book", "book maker", "inspect book maker", "look at book maker", "use book maker"]
 acc_platter = ["look at platter", "inspect platter", "use platter", "platter"]
 acc_stairwell = ["take stairwell", "stairwell", "inspect stairwell", "use stairwell", "look at stairwell"]
 acc_trash = ["use trash can", "use trash", "trash can", "trash", "inspect trash can", "look at trash can", "look at trash"]
@@ -153,6 +153,7 @@ class Room(object):
         action()
 
 def revelation():
+    print("   ")
     global knowledge_lvl
     if knowledge_lvl == 10:
         print("""Hello? You do realize that there's actually a person talking to you here, right? \nDon't try and talk to me though -- we'll both die if you end up doing that. \nTrust me, I was once like you. I wish I could tell you it gets better, but it doesn't really. \nAnyway --""")
@@ -161,7 +162,7 @@ def revelation():
         print("""Look, I'm a little lonely here so I'm just going to talk to you, if that's alright with you. \nI was once like you: stressed out of my mind and trying to find any way to escape. \nAnd you are correct, this is your best method of trying to escape. \nIf you can make it to the end, that is. \nAnyway --""")
         knowledge_lvl += 2
     elif knowledge_lvl == 30:
-        print("""Do you want to know who I am? I am a prisoner, a result of Magnet. \nI am meant to take students here on a chase and lure them into a sense of escape before snatching it away from them. \nAs you can see, I'm not necessarily the best at it. \nI like giving changes. Anyway --""")
+        print("""Do you want to know who I am? I am a prisoner, a result of Magnet. \nI am meant to take students here on a chase and lure them into a sense of escape before snatching it away from them. \nAs you can see, I'm not necessarily the best at it. \nI like giving chances. Anyway --""")
         knowledge_lvl += 3
     elif knowledge_lvl == 40:
         print("""Why am I a prisoner? I am a prisoner because I failed this task. I failed this task spectacularly. \nDon't worry too much about me, this isn't my day job or anything. \nJust -- try not to fail, yeah? So let's get our heads back into the game --""")
@@ -531,8 +532,8 @@ def encounter():
                         ahh = True
                     warning()
     elif location == 6:
-        global fabrics
-        print("The loom reaches the ceiling, and you cannot insert the fabric without help.")
+        global wools
+        print("The loom reaches the ceiling, and you cannot insert the wool without help.")
         if "binding" in inventory or "binding" in noninventory:
             print("\nYou have already used the loom to the full extent necessary.")
             action()
@@ -543,36 +544,37 @@ def encounter():
                 print("\nThe spider deftly crawls up and down the loom, moving exactly where you want it. \nIt eagerly awaits instruction.")
             if "spider" in noninventory:
                 if "spider thread" in inventory:
-                    fabrics.append("spider thread")
+                    wools.append("spider thread")
                     noninventory.append("spider thread")
                     inventory.remove("spider thread")
-                if "golden fabric" in inventory:
-                    fabrics.append("golden fabric")
-                    noninventory.append("golden fabric")
-                    inventory.remove("golden fabric")
-                if "blue fabric" in inventory:
-                    fabrics.append("blue fabric")
-                    noninventory.append("blue fabric")
-                    inventory.remove("blue fabric")
-                if "purple fabric" in inventory:
-                    fabrics.append("purple fabric")
-                    noninventory.append("purple fabric")
-                    inventory.remove("purple fabric")
-                if len(fabrics) != 0:
+                if "golden wool" in inventory:
+                    wools.append("golden wool")
+                    noninventory.append("golden wool")
+                    inventory.remove("golden wool")
+                if "blue wool" in inventory:
+                    wools.append("blue wool")
+                    noninventory.append("blue wool")
+                    inventory.remove("blue wool")
+                if "purple wool" in inventory:
+                    wools.append("purple wool")
+                    noninventory.append("purple wool")
+                    inventory.remove("purple wool")
+                if len(wools) != 0:
                     print("\nThe spider takes from you:")
-                    for item in fabrics:
+                    for item in wools:
                         print("     ", item)
                     print("and immediately jumps on the loom in order to start weaving.")
-                    if len(fabrics) < 4:
-                        print("\nYou still need", str(4-len(fabrics)), "different materials in order to fully make something.")
+                    if len(wools) < 4:
+                        print("\nYou still need", str(4-len(wools)), "different materials in order to fully make something.")
                     else:
-                        print("\The spider finishes its work atop the loom and drops into your hands an amount of binding. \nThe binding is that typically used on books.")
+                        print("\nThe spider finishes its work atop the loom and drops into your hands an amount of binding. \nThe binding is that typically used on books.")
                         inventory.append("binding")
-                elif len(fabrics) == 0:
+                    action()
+                elif len(wools) == 0:
                     print("\nYou are lacking all of the necessary materials to fully make what you are supposed to.\nYou still need 4 different materials.")
                     action()
             else:
-                print("\nYou cannot reach the room in order to do any work. \nPerhaps if you had something that could crawl up there to help...")
+                print("\nYou cannot reach the loom in order to do any work. \nPerhaps if you had something that could crawl up there to help...")
                 action()
     elif location == 7:
         global platter
@@ -597,13 +599,14 @@ def encounter():
                 print("\nYou place:")
                 for item in platter:
                     print("     ", item)
-                print("inside the indentation within the platter. It fits perfectly")
+                print("inside the indentation within the platter. It fits perfectly.")
                 if len(platter) < 3:
                     print("\nYou still need", str(3-len(platter)), "different round objects in order to fill up the platter.")
                 else:
-                    print("\All of your shiny, shiny orbs that you probably could have sold for a million dollars slide into the platter. \nThere is a spinning sound, and the platter spins around. \nFrom the resulting crevice in the wall, you see something shining. \nFor a second, you think that it's a diamond that you can sell and make tons of money off of. \nInstead, you see a ton of paper. \nDisappointment fills you, but you take the sheafs of paper regardless.")
+                    print("\nAll of your shiny, shiny orbs that you probably could have sold for a million dollars slide into the platter. \nThere is a spinning sound, and the platter spins around. \nFrom the resulting crevice in the wall, you see something shining. \nFor a second, you think that it's a diamond that you can sell and make tons of money off of. \nInstead, you see a ton of paper. \nDisappointment fills you, but you take the sheafs of paper regardless.")
                     inventory.append("paper")
-            elif len(ingredients) == 0:
+                action()
+            elif len(platter) == 0:
                 print("\nYou are lacking all of the necessary orbs to fill the platter.\nYou still need 3 different orbs.")
                 action()
     elif location == 8:
@@ -637,32 +640,32 @@ def encounter():
                 action()
 
 def stairwell():
-    global stairwell
+    global offerings
     print("\nA bright pink post-it note is stuck on the wall, contrasting the more medieval settings surrounding you. \nOn it reads: \n'BRING ME THREE OBJECTS: A GOLDEN EGG, THE TOME OF SECRETS, AND THE FEATHER OF A PIGEON. \nTHEN YOU MAY LEAVE THIS PLACE.'")
     if "golden egg" in inventory:
         inventory.remove("golden egg")
         noninventory.append("golden egg")
-        stairwell.append("golden egg")
+        offerings.append("golden egg")
     if "feather of a pigeon" in inventory:
         inventory.remove("feather of a pigeon")
         noninventory.append("feather of a pigeon")
-        stairwell.append("feather of a pigeon")
+        offerings.append("feather of a pigeon")
     if "Tome of Secrets" in inventory:
         inventory.remove("Tome of Secrets")
         noninventory.append("Tome of Secrets")
-        stairwell.append("Tome of Secrets")
-    if len(stairwell) != 0:
+        offerings.append("Tome of Secrets")
+    if len(offerings) != 0:
         print("\nYou place:")
-        for item in stairwell:
+        for item in offerings:
             print("     ", item)
         print("before the stairwell as an offering.")
-        if len(stairwell) < 3:
+        if len(offerings) < 3:
             print("\nYou still need more offerings in order to leave this place.")
             action()
-        elif len(stairwell) == 3:
+        elif len(offerings) == 3:
             print("\nThe stairwell accepts your offerings.")
             ending()
-    elif len(stairwell) == 0:
+    elif len(offerings) == 0:
         print("\nYou possess no offerings to give the stairwell.")
         action()
 
@@ -672,10 +675,12 @@ def startgame():
 
 def endgame():
     print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class.\nGAME OVER")
+    x
 
 def ending():
     print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
     print("GAME COMPLETE")
+    x
 
 X = 1
 #defining rooms
@@ -683,10 +688,10 @@ entrance = Room("Entrance", "0", "There are three doors: one to your left, one t
 hall_1 = Room("First Hall", "1", "You see one door down the rest of the hallway. There is also a door back to where you had just come from. \nThis room is just incredibly murky, not unlike a dungeon. \nThere is a chest on the floor, which upon first glance, is locked. Thanks to the torch, you have a general idea of the room.", "Door to the Entrance", "Door Marked 3", X, "spinach", "diamond key", X)
 hall_2 = Room("Second Hall", "2", "You see one door down the rest of the hallway. There is also a door back to where you had just come from. \nThis room is far murkier than the last one you were just in. \nThere is a chest on the floor, which is locked by a heavy diamond padlock. \nIt is thanks to the torch that you can see anything at all.", "Door to the Entrance", "Door Marked 2", X, "egg", "silver orb", X)
 room_1 = Room("First Room", "3", "You see two doors on opposite ends of each other. There is also a door that leads to the entrance. \nThis room reeks of danger. A low mist crawls across the floor, while a chicken pecks at concrete. \nYou see a flash of movement to your left but when you look, you see nothing but a strand of a web. \nThe spider appears to have abandoned it. \nIn the middle of the floor lies a massive stove.", "Door to the Entrance", "Door Marked 4", "Door Marked 5", "chicken", "spider thread", "mist")
-room_2 = Room("Second Room", "4", "This room is a complete contrast to everything that you have seen before. \nIt is just as grand as the fanciest stories you have read, and the ceiling stretches on further than should be possible. \nTwo doors are tucked as far away from each other as possible. \nA golden trash can lies in the corner.", "Door Marked Hall-2", "Door Marked 5", X, "golden key", "golden orb", "golden fabric")
-room_3 = Room("Third Room", "5", "This room runs hotter than any other that you have been in thus far. \nThe answer becomes glaringly clear with the heavy boiler that sits in a corner, rattling angrily. \nIf you didn't know better, you would've thought that it was hungry. \nThere are three doors in the room.", "Door Marked Hall-1", "Door Marked 4", "Door Marked Hall-3", "spider", "blue fabric", X)
-room_4 = Room("Fourth Room", "6", "The first thing that catches your sight is a gigantic loom that stretches almost all the way to the ceiling. \nA large piece of purple fabric hangs from it already. \nThere is only one door in the room besides the one that you just entered from.", "Door Marked 1", "Door Marked 3", X, "purple fabric", X, X)
+room_2 = Room("Second Room", "4", "This room is a complete contrast to everything that you have seen before. \nIt is just as grand as the fanciest stories you have read, and the ceiling stretches on further than should be possible. \nTwo doors are tucked as far away from each other as possible. \nA golden trash can lies in the corner.", "Door Marked Hall-2", "Door Marked 5", X, "golden key", "golden orb", "golden wool")
+room_3 = Room("Third Room", "5", "This room runs hotter than any other that you have been in thus far. \nThe answer becomes glaringly clear with the heavy boiler that sits in a corner, rattling angrily. \nIf you didn't know better, you would've thought that it was hungry. \nThere are three doors in the room.", "Door Marked Hall-1", "Door Marked 4", "Door Marked Hall-3", "spider", "blue wool", X)
+room_4 = Room("Fourth Room", "6", "The first thing that catches your sight is a gigantic loom that stretches almost all the way to the ceiling. \nA large piece of purple wool hangs from it already. \nThere is only one door in the room besides the one that you just entered from.", "Door Marked 1", "Door Marked 3", X, "purple wool", X, X)
 room_5 = Room("Fifth Room", "7", "A large decorative platter hangs on a wooden wall. \nThere are three doors in the room, spaced purposefully away from each other.", "Door Marked 1", "Door Marked 2", "Door Marked Hall-3", "bronze orb", X, X)
-hall_3 = Room("Third Hall", "8", "This room is strange to see after the brilliance you had seen before. \nIt is a call back to the haunting of the first few rooms you had been in. \nIn the room, there lies a book maker ad a stairwell.", "Door Marked 3", "Door Marked 5", "Stairwell", X, X, X)
+hall_3 = Room("Third Hall", "8", "This room is strange to see after the brilliance you had seen before. \nIt is a call back to the haunting of the first few rooms you had been in. \nIn the room, there lies a book maker and a stairwell.", "Door Marked 3", "Door Marked 5", X, X, X, X)
 
 startgame()
