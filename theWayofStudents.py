@@ -675,10 +675,33 @@ def startgame():
 
 def endgame():
     print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class.\nGAME OVER")
+    endless1()
 
 def ending():
     print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
     print("GAME COMPLETE")
+    endless2()
+
+def endless1():
+    y = True
+    while y == True:
+        x = input("\n::: ")
+        if type(x) == str:
+            print("\nYou have already failed and are stuck in Magnet hell. There is nothing you can do.")
+
+def endless2():
+    y = True
+    count = 1
+    x = input("\n::: ")
+    if count < 100:
+        while y == True:
+            if type(x) == str:
+                print("\nYou have already reached nirvana and are away from Magnet. What else would you like to do?")
+                count += 1
+    else:
+        while y == True:
+            if type(x) == str:
+                print("\nYou could have had it all, but because of your inability to let things go, \nyou have been kicked away from nirvana.")
 
 X = 1
 #defining rooms
