@@ -675,12 +675,10 @@ def startgame():
 
 def endgame():
     print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class.\nGAME OVER")
-    x
 
 def ending():
     print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
     print("GAME COMPLETE")
-    x
 
 X = 1
 #defining rooms
