@@ -15,8 +15,8 @@ knowledge_lvl = 0                               #depending on how high the value
 look_count = 0
 location = 0
 norestcount = 0
-inventory = []
-noninventory = []
+inventory = []                                  #where all of the items go
+noninventory = []                               #where all of the used items go (helps to check if items were already picked up)
 
 #smaller lists for encounter functions; initially part of the function but reset each time, so here we are
 global ingredients
@@ -30,7 +30,7 @@ platter = []
 bookmaker = []
 offerings = []
 
-#defines acceptable responses to filter responses but also accept various other acceptable ones
+#defines acceptable responses to filter responses and also accept various other ones as opposed to only one specific one
 acc_yes = ["yes", "yeah", "y", "yeh", "yah", "sure", "yup", "yep", "ye", "yee"]
 acc_no = ["no", "nah", "nay", "n", "fight me b----", "nope", "nah fam"]
 acc_look = ["look", "look around", "have a gander", "see", "try to look"]
@@ -46,8 +46,9 @@ acc_trash = ["use trash can", "use trash", "trash can", "trash", "inspect trash 
 acc_rest = ["rest", "relax"]
 acc_inv = ["inventory"]
 acc_int = ["1", "2", "3", "4", "5"]
-#makes a total list of acceptable responses
+#makes a total list of acceptable responses for the action function
 acc_res = [acc_yes, acc_no, acc_look, acc_doors, acc_rest, acc_inv, acc_int, acc_chest, acc_loom, acc_boiler, acc_stove, acc_platter, acc_stairwell, acc_trash]
+#had to do this separate list because it acc_res didn't work
 acc_responses = []
 for a in acc_res:
     for b in a:
@@ -79,15 +80,15 @@ class Room(object):
         doors = [self.door1, self.door2, self.door3]
         n = 0
         print(" ")
-        for x in doors:
+        for x in doors:                         #not every room has three doors; cleans out nonexistant doors
             if type(x) == str:
                 n += 1
                 print(f"{n}. {x}")
             else:
                 print("\nWhich one would you like to go through?")
         print("Please type the number of the door you would like to go through.")
-        while lol == False:                     #keeps cycling through until an acceptable answer is given; credit to Damon for this
-            subpeep = input("::: ")
+        while lol == False:                     #keeps cycling through until an acceptable answer is given
+            subpeep = input("::: ")             #validates + turns input into an integer; you can find a more efficient way to do this online but I didn't know
             if subpeep not in acc_int:
                 warning()
                 print("\nThat is an unacceptable value, please try again.")
@@ -96,8 +97,8 @@ class Room(object):
                 if peep <= n:
                     lol = True
                 else:
-                    print("\nThat is an unacceptable value, please try again.")
                     warning()
+                    print("\nThat is an unacceptable value, please try again.")
 
     def items_list(self):                       #provides a list of items based on the class definition
         global knowledge_lvl
@@ -107,14 +108,14 @@ class Room(object):
         clean_items = []
         n = 0
         lol = True
-        for item in items:
+        for item in items:                              #not every room has three items, so filters out placeholder for those items
             if type(item) == str:
                 clean_items.append(item)
-        if self.item1 in inventory or self.item1 in noninventory or self.item2 in noninventory or self.item3 in noninventory:
+        if self.item1 in inventory or self.item1 in noninventory or self.item2 in noninventory or self.item3 in noninventory:       #prevents items from being added twice
             print("\nYou have already taken all available items in the room. A small, facetious voice in your brain tells you 'Good job!'")
         else:
             knowledge_lvl += 1
-            if len(inventory) <= 4:
+            if len(inventory) <= 4:                     #changes text display depending on how many items you have already gotten
                 print(f"\nNow that you have taken a good look around, you catch sight of many items around you. \nAlmost as though they were conveniently placed for you to find (isn't that bizarre?), you see a:")
             elif len(inventory) > 4 and len(inventory) <= 8:
                 print(f"\nNow that you have taken a good look around, you catch si -- weird. \nIt's almost as though you've just thought that before, and multiple times at that. \nNevermind. Regardless, you see a:")
@@ -126,7 +127,7 @@ class Room(object):
                 print("     ", item)
                 inventory.append(item)
             print("\nYou add these items into a bag you are holding. You know that the items cannot fit for sure, yet they do.")
-            while lol == True:
+            while lol == True:                          #automatically prompts for seeing inventory
                 eep = input("""\nWould you like to see your inventory? \n::: """).lower()
                 if eep in acc_yes:
                     lol = False
@@ -137,22 +138,22 @@ class Room(object):
                 elif eep in acc_no:
                     lol = False
                     print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
-                else:
-                    if warning_lvl == 3:
+                else:                           #provides punishment for typing in a bad answer
+                    if warning_lvl == 3:        #stops the loop from continuing after game -- not sure if it's still necessary, but it was
                         lol = False
                     warning()
         print("\nWhat would you like to do?")
-        clean_items = []
+        clean_items = []                        #resets clean_items
         action()
 
     def entered(self):                          #provides what room is entered
         global location
         location = int(self.number)
-        norest()
+        norest()                                #each time a room is changed, sees if they need a norest prompt
         print(f"You have entered the {self.name}.")
         action()
 
-def revelation():
+def revelation():                               #additional storyline information depending on how many actions the player performs
     print("   ")
     global knowledge_lvl
     if knowledge_lvl == 10:
@@ -169,7 +170,7 @@ def revelation():
     else:
         return None
 
-def warning():
+def warning():                                  #because people like to type in ridiculous answers to simple questions (yes, no, 123, etc.), I created a system to punish them
     global warning_lvl
     global knowledge_lvl
     warning_lvl += 1
@@ -186,11 +187,11 @@ def warning():
         print("That is it, I can't take this anymore. It's over for you.\n")
         endgame()
 
-def norest():
+def norest():                                   #this decreases a player's rest level each time they move from room to room; if the rest level hits zero, they die; also provides warnings
     global rest_decrease
     global rest_lvl
-    global norestcount
-    rest_lvl -= rest_decrease
+    global norestcount                          #prevents continuous prompting every single time rest is below a certain value
+    rest_lvl -= rest_decrease                   #because rest_decrease changes, rest_lvl changes by rest_decrease and not a stable value
     print(" ")
     if rest_lvl <= 0:
         print("You grow so exhausted that you cannot move anymore. You fall to the ground and die.")
@@ -214,12 +215,12 @@ def action():
     global hehe
     global look_count
     global knowledge_lvl
-    lol = False
-    while lol == False:
+    lol = False             #I probably should've chosen a better variable name than lol, but I grew accustomed to seeing it
+    while lol == False:     #because I'm generous (and don't want to get points off for academic dishonesty), credit to Damon for the loop idea that I abuse throughout this code
         lol = True
-        hehe = input("""::: """).lower()
-        revelation()
-        if look_count == 0:
+        hehe = input("""::: """).lower()        #main input receiver
+        revelation()                            #runs revelation each action to see if knowledge is acceptable
+        if look_count == 0:                     #for the very first room, the first action must be look
             if hehe not in acc_look:
                 print("""\nYou cannot see anything in the room, so you cannot do anything.""")
                 lol = False
@@ -255,20 +256,19 @@ def action():
             elif hehe in acc_inv:
                 inventoryf()
             else:
-                knowledge_lvl -= 1
+                knowledge_lvl -= 1              #prevents knowledge level from going up with invalid inputs
                 print("""\nI am sorry, that is unacceptable. Please try again.""")
                 lol = False
 
-def rest():
+def rest():                                     #decreases rest_lvl by a random amount
     global rest_lvl
-    global rest_decrease
     rest_lvl += random.randint(1,5)
     print("\nYou feel better rested than before and find it easier to continue.")
-    if "chicken" in inventory or "mist" in inventory:
+    if "chicken" in inventory or "mist" in inventory:           #provides prompt to suggest removing certain items from the inventory
         print("\nYou wonder if some of the exhaustion that you felt was due to an item that you are currently carrying. \nIt would certainly explain why you started tiring far more easily.")
     action()
 
-def inventoryf():
+def inventoryf():                               #method of seeing inventory outside of picking up items
     global inventory
     n = 0
     print("\nThese are the items you currently have in your inventory.")
@@ -277,12 +277,12 @@ def inventoryf():
         print(f"{n}. {item}")
     action()
 
-def look():
+def look():                                     #provides a description of the room
     global look_count
     global location
     global rest_decrease
     look_count += 1
-    if location == 0:
+    if location == 0:                           #there is probably a more efficient way to do this, but I couldn't figure it out
         print(entrance.description)
         entrance.items_list()
     elif location == 1:
@@ -292,7 +292,7 @@ def look():
         print(hall_2.description)
         hall_2.items_list()
     elif location == 3:
-        rest_decrease += 2
+        rest_decrease += 2                      #the mist and chicken are in this room, and so rest_decrease increases because they are damaging items
         print(room_1.description)
         room_1.items_list()
     elif location == 4:
@@ -311,10 +311,10 @@ def look():
         print(hall_3.description)
         action()
 
-def doors():
+def doors():                                    #provides a list of doors and controls movement
     if location == 0:
         entrance.doors_list()
-        if peep == 1:
+        if peep == 1:                           #peep here is referencing the doors_list() function int he class
             hall_2.entered()
         elif peep == 2:
             room_1.entered()
@@ -382,19 +382,19 @@ def encounter():
     print(" ")
     if location == 1:
         print("Upon inspection, you can see that the lock is a silver one.")
-        if "silver key" in inventory:
+        if "silver key" in inventory:               #checks to make sure that the silver key is in the inventory
             inventory.remove("silver key")
             noninventory.append("silver key")
             print("\nWith the silver key, you open up the chest. \nInside the chest lies a golden egg. \nYou pick it up and add it to the bag.")
             inventory.append("golden egg")
             action()
-        elif "silver key" in noninventory:
+        elif "silver key" in noninventory:          #checks to see if chest was already opened before
             print("\nYou have already opened the chest.")
             action()
         else:
             print("\nYou cannot open the chest.")
             action()
-    elif location == 2:
+    elif location == 2:                             #works the exact same way as above chest function
         print("Upon inspection, you can see that the lock is made of diamond.")
         if "diamond key" in inventory:
             inventory.remove("diamond key")
@@ -409,18 +409,18 @@ def encounter():
             print("\nYou cannot open the chest.")
             action()
     elif location == 3:
-        global ingredients
+        global ingredients                          #ingredients have to be outside of the function because otherwise it resets each time and that can't happen
         print("The first thing that you notice is that the stove is locked with a heavy gold padlock.")
-        if "good egg dish" in inventory or "good egg dish" in noninventory:
+        if "good egg dish" in inventory or "good egg dish" in noninventory:         #checks to make sure stove wasn't already used to full capacity
             print("\nYou have already used the stove to the full extent necessary.")
             action()
         else:
-            if "golden key" in inventory:
+            if "golden key" in inventory:           #works same as above
                 inventory.remove("golden key")
                 noninventory.append("golden key")
                 print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
             if "golden key" in noninventory:
-                if "spinach" in inventory:
+                if "spinach" in inventory:          #all of these are separate if functions; adds items from inventory even if not all of them are complete
                     ingredients.append("spinach")
                     noninventory.append("spinach")
                     inventory.remove("spinach")
@@ -432,18 +432,18 @@ def encounter():
                     ingredients.append("pepper")
                     noninventory.append("pepper")
                     inventory.remove("pepper")
-                if len(ingredients) != 0:
+                if len(ingredients) != 0:           #if some ingredients were used
                     print("\nYou place:")
                     for item in ingredients:
                         print("     ", item)
                     print("in the pan.")
-                    if len(ingredients) < 3:
+                    if len(ingredients) < 3:        #if not all ingredients were used, prints how many ingredients are still needed
                         print("\nYou still need", str(3-len(ingredients)), "ingredients")
-                    else:
+                    else:                           #if all ingredients were used, provides the good egg dish
                         print("\nYou have created the superior dish, commonly eaten by a legend that went by the name of Cat or something. \nA dish of eggs, peppers (the spicy kind), and spinach. \nThe good egg dish is added to your inventory.")
                         inventory.append("good egg dish")
                     action()
-                elif len(ingredients) == 0:
+                elif len(ingredients) == 0:         #if there are no ingredients
                     print("\nYou are lacking all of the ingredients necessary to cook a dish.\nYou still need 3 ingredients.")
                     action()
             else:
@@ -451,30 +451,30 @@ def encounter():
                 action()
     elif location == 4:
         global rest_decrease
-        x = True
-        throwaway = input("You go over to the trash can and inspect it. It seems that you can throw things away. Would you like to throw something away?\n::: ")
+        x = True                                    #again, way too many loops
         loop = True
-        while loop == True:
+        while loop == True:                         #this loop is to cycle again if the input from "throwaway" is incorrect
+            throwaway = input("You go over to the trash can and inspect it. It seems that you can throw things away. Would you like to throw something away?\n::: ")
             loop = False
             if throwaway in acc_yes:
-                while x == True:
+                while x == True:                    #this loop is to cycle if the input for "items" is incorrect
                     x = False
                     n = 0
                     print("\nThese are the items you currently have in your inventory.")
-                    for item in inventory:
+                    for item in inventory:          #provides list of items in their current inventory
                         n += 1
                         print(f"{n}. {item}")
-                    items = input("\nWhat item would you like to throw away? \n(Please type in the item, not the number the item is associated with. \ntype 10 if you would not like to throw an item away) \n::: ")
-                    if items == "10":
+                    items = input("\nWhat item would you like to throw away? \n(Please type in the item, not the number the item is associated with. \ntype 1 if you would not like to throw an item away) \n::: ")
+                    if items == "1":                #allows for people to back out of throwing things away
                         print("\nVery well. You are no longer at the trashcan. What would you like to do?")
                         action()
                     elif items not in inventory:
                         print("I am sorry, but you do not possess that item, or you spelled it incorrectly. Please try again. \n::: ")
                         x = True
-                    else:
+                    else:                           #assuming items are in the inventory
                         if items == "mist" or items == "chicken":
-                            rest_decrease -= 1
-                        elif items == "torch":
+                            rest_decrease -= 1      #decreases the amount the rest decreases when mist or chicken (damaging items) are thrown away
+                        elif items == "torch":      #one of my favorite ways that you can die
                             print("\nYou are pretty sure that you don't need the torch at this point, and you throw it away. \nHowever, immediately after you throw it away, everywhere around you is plunged into complete darkness. \nWhen you try to run to a door to find a light switch, you slip. \nYour head hits the gilded trash can and you promptly die.")
                             endgame()
                         elif items != "mist" and items != "chicken":
@@ -484,7 +484,7 @@ def encounter():
                         noninventory.append(items)
                         print(f"\nYou take the {items} out and throw it into the trash can.")
                         subx = True
-                        while subx == True:
+                        while subx == True:         #yet another loop for if the input for "cont" is incorrect
                             subx = False
                             cont = input("Would you like to remove any more items?\n::: ")
                             if cont in acc_yes:
@@ -502,17 +502,19 @@ def encounter():
                 action()
             else:
                 loop = True
+                if warning_lvl == 3:
+                    loop = False
                 warning()
     elif location == 5:
-        if "good egg dish" in noninventory:
+        if "good egg dish" in noninventory:         #prevents interacting with the boiler twice
             print("You have already dealt with the boiler, which is sitting there happily.")
             action()
         else:
-            print("When you come closer to the boiler, you notice that the boiler is indeed hungry. \nIn fact, you're rather worried that the boiler would go and try to kill you if you crawl too close. \nWould you like to go closer?")
+            print("When you come closer to the boiler, you notice that the boiler is  hungry. \nIn fact, you're rather worried that the boiler would go and try to kill you if you crawl too close. \nWould you like to go closer?")
             ahh = False
-            while ahh == False:
+            while ahh == False:                     #loop for when "boop" is not an acceptable input
                 ahh = True
-                boop = input("::: ")
+                boop = input("::: ")                #gives the choice to back away from the boiler
                 if boop in acc_yes:
                     if "good egg dish" in inventory:
                         inventory.remove("good egg dish")
@@ -520,7 +522,7 @@ def encounter():
                         print("\nYou throw the good egg dish from your inventory into the boiler's open grid and wait anxiously. \nAfter a few tense seconds, the boiler closes and bounces up and down a few times. \nThen, the boiler quietens, burping out a pigeon feather. \nYou successfully calmed the boiler without dying.")
                         inventory.append("feather of a pigeon")
                         action()
-                    elif "good egg dish" not in inventory:
+                    elif "good egg dish" not in inventory:      #also one of my favorite ways someone can die
                         print("\nAs you are not possessing an offering the boiler desires, it launches at you. \nYou are eaten by the boiler.")
                         endgame()
                 elif boop in acc_no:
@@ -534,11 +536,11 @@ def encounter():
     elif location == 6:
         global wools
         print("The loom reaches the ceiling, and you cannot insert the wool without help.")
-        if "binding" in inventory or "binding" in noninventory:
+        if "binding" in inventory or "binding" in noninventory: #ensures that you can't use the loom twice
             print("\nYou have already used the loom to the full extent necessary.")
             action()
         else:
-            if "spider" in inventory:
+            if "spider" in inventory:               #works the same way as the stove, except with more items
                 inventory.remove("spider")
                 noninventory.append("spider")
                 print("\nThe spider deftly crawls up and down the loom, moving exactly where you want it. \nIt eagerly awaits instruction.")
@@ -576,7 +578,7 @@ def encounter():
             else:
                 print("\nYou cannot reach the loom in order to do any work. \nPerhaps if you had something that could crawl up there to help...")
                 action()
-    elif location == 7:
+    elif location == 7:                         #works the same way as the stove
         global platter
         print("The platter is very decorative and has three round spaces where you think objects are supposed to go.")
         if "paper" in inventory or "paper" in noninventory:
@@ -609,7 +611,7 @@ def encounter():
             elif len(platter) == 0:
                 print("\nYou are lacking all of the necessary orbs to fill the platter.\nYou still need 3 different orbs.")
                 action()
-    elif location == 8:
+    elif location == 8:                         #works the same way as the stove, except with less items
         global bookmaker
         print("The bookmaker seems to be built for just the purpose that it looks to be for.")
         if "Tome of Secrets" in inventory or "Tome of Secrets" in noninventory:
@@ -639,8 +641,8 @@ def encounter():
                 print("\nUnfortunately, you don't seem to have anything that you can put inside the bookmaker.")
                 action()
 
-def stairwell():
-    global offerings
+def stairwell():                            #created a separate function and did not just stick in encounter because there were two location == 8's
+    global offerings                        #works very similarly to the stove
     print("\nA bright pink post-it note is stuck on the wall, contrasting the more medieval settings surrounding you. \nOn it reads: \n'BRING ME THREE OBJECTS: A GOLDEN EGG, THE TOME OF SECRETS, AND THE FEATHER OF A PIGEON. \nTHEN YOU MAY LEAVE THIS PLACE.'")
     if "golden egg" in inventory:
         inventory.remove("golden egg")
@@ -669,27 +671,27 @@ def stairwell():
         print("\nYou possess no offerings to give the stairwell.")
         action()
 
-def startgame():
+def startgame():                                #initializes the game
     print("""You are currently in the entrance of what appears to be an old castle. \nUnfortunately, you do not appear to remember anything of your past. \nSomething very cold and wet drips upon your head, and you feel a headache incoming. \nWhat would you like to do? \n \n(TIP: try to make your commands as short as possible. \nFor example, instead of typing 'open door', simply type 'door'.)""")
     action()
 
-def endgame():
+def endgame():                                  #the unsuccessful ending to the game
     print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class.\nGAME OVER")
     endless1()
 
-def ending():
+def ending():                                   #the real ending to the game
     print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
     print("GAME COMPLETE")
     endless2()
 
-def endless1():
+def endless1():                                 #I had no idea how to end the game, so I just took infinite input that yields nothing
     y = True
     while y == True:
         x = input("\n::: ")
         if type(x) == str:
             print("\nYou have already failed and are stuck in Magnet hell. There is nothing you can do.")
 
-def endless2():
+def endless2():                                 #infinite input for the real ending
     y = True
     count = 1
     x = input("\n::: ")
@@ -698,13 +700,14 @@ def endless2():
             if type(x) == str:
                 print("\nYou have already reached nirvana and are away from Magnet. What else would you like to do?")
                 count += 1
-    else:
+    else:                                       #if someone keeps on trying to input, they end up actually losing the game
         while y == True:
             if type(x) == str:
                 print("\nYou could have had it all, but because of your inability to let things go, \nyou have been kicked away from nirvana.")
+                endless1()
 
 X = 1
-#defining rooms
+#defines rooms for the classes
 entrance = Room("Entrance", "0", "There are three doors: one to your left, one to the front, and one to your right. A torch dimly lights the entrance. \nFrom somewhere above, you think that you hear a scream.", "Left Door", "Center Door", "Right Door", "torch", "silver key", X)
 hall_1 = Room("First Hall", "1", "You see one door down the rest of the hallway. There is also a door back to where you had just come from. \nThis room is just incredibly murky, not unlike a dungeon. \nThere is a chest on the floor, which upon first glance, is locked. Thanks to the torch, you have a general idea of the room.", "Door to the Entrance", "Door Marked 3", X, "spinach", "diamond key", X)
 hall_2 = Room("Second Hall", "2", "You see one door down the rest of the hallway. There is also a door back to where you had just come from. \nThis room is far murkier than the last one you were just in. \nThere is a chest on the floor, which is locked by a heavy diamond padlock. \nIt is thanks to the torch that you can see anything at all.", "Door to the Entrance", "Door Marked 2", X, "egg", "silver orb", X)
@@ -715,4 +718,4 @@ room_4 = Room("Fourth Room", "6", "The first thing that catches your sight is a 
 room_5 = Room("Fifth Room", "7", "A large decorative platter hangs on a wooden wall. \nThere are three doors in the room, spaced purposefully away from each other.", "Door Marked 1", "Door Marked 2", "Door Marked Hall-3", "bronze orb", X, X)
 hall_3 = Room("Third Hall", "8", "This room is strange to see after the brilliance you had seen before. \nIt is a call back to the haunting of the first few rooms you had been in. \nIn the room, there lies a book maker and a stairwell.", "Door Marked 3", "Door Marked 5", X, X, X, X)
 
-startgame()
+startgame()                                     #automatically initializes the game
