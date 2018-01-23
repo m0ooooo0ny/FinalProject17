@@ -5,5 +5,7 @@ The Way of Students is a text adventure game based in a mysterious dungeon where
 The title of the game is ripped from The Way of Kings by Brandon Sanderson.
 
 Flow Chart: https://drive.google.com/file/d/17PAWCUUo9VsoJsJzFSmb6gHyxGojMyWM/view?usp=sharing OR https://drive.google.com/file/d/1yGa4yDuzTayM8BURO-Yij1h6I2qcACqE/view?usp=sharing
+
 Presentation: https://docs.google.com/presentation/d/1r4RAwl0EhuPFoDFQaurI73ldEVBUW5-63XlZhS1TdBk/edit?usp=sharing
+
 Self-Created Reference Sheet: https://docs.google.com/document/d/1tIGV3hdI41DyZpjV0ponsr0QuWj2OP4pUC0Bc9GsaBM/edit?usp=sharing
