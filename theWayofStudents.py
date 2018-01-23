@@ -73,49 +73,49 @@ class Room(object):
         self.item2 = item2
         self.item3 = item3
 
-    def doors_list(self):                       #provides a list of doors based on the class definition
+    def doors_list(self):
+        """provides a list of doors based on the doors there when the class was created"""
         global peep
         global warning_lvl
         lol = False
         doors = [self.door1, self.door2, self.door3]
         n = 0
         print(" ")
-        for x in doors:                         #not every room has three doors; cleans out nonexistant doors
+        for x in doors:                         #not every room has three doors; this cleans out nonexistant doors
             if type(x) == str:
                 n += 1
                 print(f"{n}. {x}")
             else:
                 print("\nWhich one would you like to go through?")
         print("Please type the number of the door you would like to go through.")
-        while lol == False:                     #keeps cycling through until an acceptable answer is given
-            subpeep = input("::: ")             #validates + turns input into an integer; you can find a more efficient way to do this online but I didn't know
+        while lol == False:                     #keeps cycling through the input (subpeep) until an acceptable answer is given
+            subpeep = input("::: ")             #checks to make sure the input is an integer, just in string form
             if subpeep not in acc_int:
                 warning()
                 print("\nThat is an unacceptable value, please try again.")
             else:
-                peep = int(subpeep)
+                peep = int(subpeep)             #turns an acceptable input into an integer
                 if peep <= n:
                     lol = True
                 else:
                     warning()
                     print("\nThat is an unacceptable value, please try again.")
 
-    def items_list(self):                       #provides a list of items based on the class definition
+    def items_list(self):
+        """provides a list of items in the room, and automatically adds those items to the inventory"""
         global knowledge_lvl
         global inventory
         global noninventory
         items = [self.item1, self.item2, self.item3]
         clean_items = []
-        n = 0
-        lol = True
-        for item in items:                              #not every room has three items, so filters out placeholder for those items
+        for item in items:                      #not every room has three items; this cleans out nonexistent items
             if type(item) == str:
                 clean_items.append(item)
-        if self.item1 in inventory or self.item1 in noninventory or self.item2 in noninventory or self.item3 in noninventory:       #prevents items from being added twice
+        if self.item1 in inventory or self.item1 in noninventory or self.item2 in noninventory or self.item3 in noninventory:
+            #prevents items from being added to the inventory twice
             print("\nYou have already taken all available items in the room. A small, facetious voice in your brain tells you 'Good job!'")
         else:
-            knowledge_lvl += 1
-            if len(inventory) <= 4:                     #changes text display depending on how many items you have already gotten
+            if len(inventory) <= 4:             #changes text display and information depending on how many items you have already gotten
                 print(f"\nNow that you have taken a good look around, you catch sight of many items around you. \nAlmost as though they were conveniently placed for you to find (isn't that bizarre?), you see a:")
             elif len(inventory) > 4 and len(inventory) <= 8:
                 print(f"\nNow that you have taken a good look around, you catch si -- weird. \nIt's almost as though you've just thought that before, and multiple times at that. \nNevermind. Regardless, you see a:")
@@ -126,51 +126,38 @@ class Room(object):
             for item in clean_items:
                 print("     ", item)
                 inventory.append(item)
-            print("\nYou add these items into a bag you are holding. You know that the items cannot fit for sure, yet they do.")
-            while lol == True:                          #automatically prompts for seeing inventory
-                eep = input("""\nWould you like to see your inventory? \n::: """).lower()
-                if eep in acc_yes:
-                    lol = False
-                    print("\nThese are the items you currently have in your inventory.")
-                    for item in inventory:
-                        n += 1
-                        print(f"{n}. {item}")
-                elif eep in acc_no:
-                    lol = False
-                    print("\nVery well. If you wish to see your inventory at any time, type in 'inventory'.""")
-                else:                           #provides punishment for typing in a bad answer
-                    if warning_lvl == 3:        #stops the loop from continuing after game -- not sure if it's still necessary, but it was
-                        lol = False
-                    warning()
+            #I used to have an automatic prompter to reveal inventory here, but my sister said that it was annoying, so I removed it
+            print("\nYou add these items into a bag you are holding. You know that the items cannot fit for sure, yet they do.\n(If you wish to see your inventory at any time, type in 'inventory.')")
         print("\nWhat would you like to do?")
-        clean_items = []                        #resets clean_items
         action()
 
-    def entered(self):                          #provides what room is entered
+    def entered(self):
+        """tells the player which room they just entered"""
         global location
-        location = int(self.number)
+        location = int(self.number)             #changes the location value of the room automatically
         norest()                                #each time a room is changed, sees if they need a norest prompt
         print(f"You have entered the {self.name}.")
         action()
 
-def revelation():                               #additional storyline information depending on how many actions the player performs
+def revelation():
+    """provides additional storyline information, specifically about the narrator, depending on the amount of knowledge they have"""
     print("   ")
     global knowledge_lvl
     if knowledge_lvl == 10:
         print("""Hello? You do realize that there's actually a person talking to you here, right? \nDon't try and talk to me though -- we'll both die if you end up doing that. \nTrust me, I was once like you. I wish I could tell you it gets better, but it doesn't really. \nAnyway --""")
-        knowledge_lvl += 1
     elif knowledge_lvl == 20:
         print("""Look, I'm a little lonely here so I'm just going to talk to you, if that's alright with you. \nI was once like you: stressed out of my mind and trying to find any way to escape. \nAnd you are correct, this is your best method of trying to escape. \nIf you can make it to the end, that is. \nAnyway --""")
-        knowledge_lvl += 2
+        knowledge_lvl += 1
     elif knowledge_lvl == 30:
         print("""Do you want to know who I am? I am a prisoner, a result of Magnet. \nI am meant to take students here on a chase and lure them into a sense of escape before snatching it away from them. \nAs you can see, I'm not necessarily the best at it. \nI like giving chances. Anyway --""")
-        knowledge_lvl += 3
+        knowledge_lvl += 2
     elif knowledge_lvl == 40:
         print("""Why am I a prisoner? I am a prisoner because I failed this task. I failed this task spectacularly. \nDon't worry too much about me, this isn't my day job or anything. \nJust -- try not to fail, yeah? So let's get our heads back into the game --""")
     else:
         return None
 
-def warning():                                  #because people like to type in ridiculous answers to simple questions (yes, no, 123, etc.), I created a system to punish them
+def warning():
+    """a system to punish those that put in ridiculous answers for simple questions (such as typing in a number or yes/no questions)"""
     global warning_lvl
     global knowledge_lvl
     warning_lvl += 1
@@ -187,11 +174,13 @@ def warning():                                  #because people like to type in 
         print("That is it, I can't take this anymore. It's over for you.\n")
         endgame()
 
-def norest():                                   #this decreases a player's rest level each time they move from room to room; if the rest level hits zero, they die; also provides warnings
+def norest():
+    """decreases a player's rest level each time they move from room to room
+    if the rest level hits zero, they die; this also provides warnings throughout the game"""
     global rest_decrease
     global rest_lvl
     global norestcount                          #prevents continuous prompting every single time rest is below a certain value
-    rest_lvl -= rest_decrease                   #because rest_decrease changes, rest_lvl changes by rest_decrease and not a stable value
+    rest_lvl -= rest_decrease                   #because rest_decrease changes, rest_lvl changes by rest_decrease and not a static value
     print(" ")
     if rest_lvl <= 0:
         print("You grow so exhausted that you cannot move anymore. You fall to the ground and die.")
@@ -212,6 +201,7 @@ def norest():                                   #this decreases a player's rest 
         return None
 
 def action():
+    """this is the basic action function that takes input from the user and decides what to do"""
     global hehe
     global look_count
     global knowledge_lvl
@@ -219,7 +209,7 @@ def action():
     while lol == False:     #because I'm generous (and don't want to get points off for academic dishonesty), credit to Damon for the loop idea that I abuse throughout this code
         lol = True
         hehe = input("""::: """).lower()        #main input receiver
-        revelation()                            #runs revelation each action to see if knowledge is acceptable
+        revelation()                            #runs revelation each action to see if knowledge_lvl has reached a point where new information is provided; does nothing if it does not
         if look_count == 0:                     #for the very first room, the first action must be look
             if hehe not in acc_look:
                 print("""\nYou cannot see anything in the room, so you cannot do anything.""")
@@ -227,7 +217,7 @@ def action():
             else:
                 knowledge_lvl += 1
                 look()
-        else:
+        else:                                   #for all other rooms, no first action is necessary
             knowledge_lvl += 1
             if hehe in acc_chest and location == 1:
                 encounter()
@@ -260,7 +250,8 @@ def action():
                 print("""\nI am sorry, that is unacceptable. Please try again.""")
                 lol = False
 
-def rest():                                     #decreases rest_lvl by a random amount
+def rest():
+    """increases rest_lvl by a random amount if the player chooses to rest"""
     global rest_lvl
     rest_lvl += random.randint(1,5)
     print("\nYou feel better rested than before and find it easier to continue.")
@@ -268,7 +259,8 @@ def rest():                                     #decreases rest_lvl by a random 
         print("\nYou wonder if some of the exhaustion that you felt was due to an item that you are currently carrying. \nIt would certainly explain why you started tiring far more easily.")
     action()
 
-def inventoryf():                               #method of seeing inventory outside of picking up items
+def inventoryf():
+    """prints the player's inventory"""
     global inventory
     n = 0
     print("\nThese are the items you currently have in your inventory.")
@@ -277,12 +269,13 @@ def inventoryf():                               #method of seeing inventory outs
         print(f"{n}. {item}")
     action()
 
-def look():                                     #provides a description of the room
+def look():
+    """provides a description of the room + adds items to inventory automatically"""
     global look_count
     global location
     global rest_decrease
     look_count += 1
-    if location == 0:                           #there is probably a more efficient way to do this, but I couldn't figure it out
+    if location == 0:                           #I tried using a more involved class system to do this, but I couldn't figure it out
         print(entrance.description)
         entrance.items_list()
     elif location == 1:
@@ -292,7 +285,7 @@ def look():                                     #provides a description of the r
         print(hall_2.description)
         hall_2.items_list()
     elif location == 3:
-        rest_decrease += 2                      #the mist and chicken are in this room, and so rest_decrease increases because they are damaging items
+        rest_decrease += 2                      #the mist and chicken are in this room, and so rest_decrease increases because they are damaging items and automatically added
         print(room_1.description)
         room_1.items_list()
     elif location == 4:
@@ -311,10 +304,11 @@ def look():                                     #provides a description of the r
         print(hall_3.description)
         action()
 
-def doors():                                    #provides a list of doors and controls movement
+def doors():
+    """provides a list of doors in order to help with movement"""
     if location == 0:
         entrance.doors_list()
-        if peep == 1:                           #peep here is referencing the doors_list() function int he class
+        if peep == 1:                           #peep here is referencing the doors_list() function in the class
             hall_2.entered()
         elif peep == 2:
             room_1.entered()
@@ -378,6 +372,7 @@ def doors():                                    #provides a list of doors and co
 #upon further thought, I may have split up encounter into separate functions because I use way too many loops
 #and those loops need a different variable name every single time, so that's food for thought
 def encounter():
+    """defines all functions revolving around more complex scenarios, such as opening a chest or feeding a boiler"""
     global inventory
     print(" ")
     if location == 1:
@@ -409,13 +404,13 @@ def encounter():
             print("\nYou cannot open the chest.")
             action()
     elif location == 3:
-        global ingredients                          #ingredients have to be outside of the function because otherwise it resets each time and that can't happen
+        global ingredients                          #ingredients have to be outside of the function because otherwise it resets each time it is called and that can't happen
         print("The first thing that you notice is that the stove is locked with a heavy gold padlock.")
         if "good egg dish" in inventory or "good egg dish" in noninventory:         #checks to make sure stove wasn't already used to full capacity
             print("\nYou have already used the stove to the full extent necessary.")
             action()
         else:
-            if "golden key" in inventory:           #works same as above
+            if "golden key" in inventory:           #works same as the chest functions
                 inventory.remove("golden key")
                 noninventory.append("golden key")
                 print("\nWith the golden key, you undo the padlock. \nBefore you lies a stove, ready for use, with a pan on top of it.")
@@ -451,13 +446,13 @@ def encounter():
                 action()
     elif location == 4:
         global rest_decrease
-        x = True                                    #again, way too many loops
+        x = True                                    #again, far too many loops
         loop = True
-        while loop == True:                         #this loop is to cycle again if the input from "throwaway" is incorrect
+        while loop == True:                         #this loop is to make sure the input from "throwaway" is acceptable
             throwaway = input("You go over to the trash can and inspect it. It seems that you can throw things away. Would you like to throw something away?\n::: ")
             loop = False
             if throwaway in acc_yes:
-                while x == True:                    #this loop is to cycle if the input for "items" is incorrect
+                while x == True:                    #this loop is to make sure the input from "items" is acceptable
                     x = False
                     n = 0
                     print("\nThese are the items you currently have in your inventory.")
@@ -484,7 +479,7 @@ def encounter():
                         noninventory.append(items)
                         print(f"\nYou take the {items} out and throw it into the trash can.")
                         subx = True
-                        while subx == True:         #yet another loop for if the input for "cont" is incorrect
+                        while subx == True:         #this loop is to ensure that the input for "cont" is acceptable
                             subx = False
                             cont = input("Would you like to remove any more items?\n::: ")
                             if cont in acc_yes:
@@ -641,7 +636,8 @@ def encounter():
                 print("\nUnfortunately, you don't seem to have anything that you can put inside the bookmaker.")
                 action()
 
-def stairwell():                            #created a separate function and did not just stick in encounter because there were two location == 8's
+def stairwell():
+    """created a separate function for the stairwell and did not add in encounter because there were two location == 8's"""
     global offerings                        #works very similarly to the stove
     print("\nA bright pink post-it note is stuck on the wall, contrasting the more medieval settings surrounding you. \nOn it reads: \n'BRING ME THREE OBJECTS: A GOLDEN EGG, THE TOME OF SECRETS, AND THE FEATHER OF A PIGEON. \nTHEN YOU MAY LEAVE THIS PLACE.'")
     if "golden egg" in inventory:
@@ -671,41 +667,44 @@ def stairwell():                            #created a separate function and did
         print("\nYou possess no offerings to give the stairwell.")
         action()
 
-def startgame():                                #initializes the game
+def startgame():
+    """initializes the game"""
     print("""You are currently in the entrance of what appears to be an old castle. \nUnfortunately, you do not appear to remember anything of your past. \nSomething very cold and wet drips upon your head, and you feel a headache incoming. \nWhat would you like to do? \n \n(TIP: try to make your commands as short as possible. \nFor example, instead of typing 'open door', simply type 'door'.)""")
     action()
 
-def endgame():                                  #the unsuccessful ending to the game
-    print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class.\nGAME OVER")
+def endgame():
+    """if you do not beat the game, this is the ending"""
+    print("\nYou float in an endless night and then jolt awake. \nYou realize that it was a fever dream that you had while asleep in class, dreaming of escape.\nGAME OVER. YOU HAVE LOST.")
     endless1()
 
-def ending():                                   #the real ending to the game
-    print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
-    print("GAME COMPLETE")
-    endless2()
-
-def endless1():                                 #I had no idea how to end the game, so I just took infinite input that yields nothing
+def endless1():
+    """created a separate function for this endless because it is referenced in two different areas"""
     y = True
     while y == True:
         x = input("\n::: ")
         if type(x) == str:
-            print("\nYou have already failed and are stuck in Magnet hell. There is nothing you can do.")
+            print("\nYou have already failed and are stuck in Magnet hell. THere is nothing you can do.")
 
-def endless2():                                 #infinite input for the real ending
+def ending():
+    """if you beat the game, this is the true ending"""
+    print("\nWhen you walk up the stairwell, the light slowly grows. \nAs soon as you pop up at the top, you see someone wearing a Magnet ID reaching out for you. \n'Come escape from your place of suffering,' they say, reaching for your hand. \nYou stare for a second before taking their hand and walking along with them on the path away from Magnet.")
+    print("GAME COMPLETE")
     y = True
     count = 1
-    x = input("\n::: ")
     if count < 100:
         while y == True:
+            x = input("\n::: ")
             if type(x) == str:
                 print("\nYou have already reached nirvana and are away from Magnet. What else would you like to do?")
                 count += 1
-    else:                                       #if someone keeps on trying to input, they end up actually losing the game
+    else:                       #if someone keeps on trying to input responses, they end up actually losing the game
         while y == True:
+            x = input("\n::: ")
             if type(x) == str:
-                print("\nYou could have had it all, but because of your inability to let things go, \nyou have been kicked away from nirvana.")
+                print("\nYou could have had it all, but because of your inability to let things go, \nyou have been kicked away from nirvana. \nGAME OVER. YOU HAVE LOST.")
                 endless1()
 
+#placeholder value
 X = 1
 #defines rooms for the classes
 entrance = Room("Entrance", "0", "There are three doors: one to your left, one to the front, and one to your right. A torch dimly lights the entrance. \nFrom somewhere above, you think that you hear a scream.", "Left Door", "Center Door", "Right Door", "torch", "silver key", X)
