@@ -619,6 +619,7 @@ def encounter():
                 noninventory.append("binding")
             if "paper" in inventory:
                 bookmaker.append("paper")
+                noninventory.append("paper")
                 inventory.remove("paper")
             if len(bookmaker) != 0:
                 print("\nYou place:")
